@@ -1,0 +1,26 @@
+<package format="2">
+    <name>dataset</name>
+    <description>datasetpackage</description>
+    <maintainer email="gobbipenguin@todo.todo">gobbipenguin</maintainer>
+    <license>Apache 2.0</license>
+    <version>1.6.4</version>
+    <buildtool_depend>catkin</buildtool_depend>
+    <depend>roscpp</depend>
+    <depend>roslib</depend>
+    <depend>std_msgs</depend>
+    <depend>geometry_msgs</depend>
+    <depend>sensor_msgs</depend>
+    <depend>aidin_msgs</depend>
+    <depend>grid_map_core</depend>
+    <depend>grid_map_ros</depend>
+    <depend>grid_map_msgs</depend>
+    <depend>grid_map_cv</depend>
+    <depend>grid_map_filters</depend>
+    <depend>grid_map_loader</depend>
+    <depend>grid_map_octomap</depend>
+    <depend>grid_map_rviz_plugin</depend>
+    <depend>grid_map_visualization</depend>
+    <depend>cv_bridge</depend>
+    <depend>eigen</depend>
+    <depend>eigen_conversions</depend>
+</package>
