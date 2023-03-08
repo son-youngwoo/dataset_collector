@@ -832,8 +832,7 @@ int main (int argc, char** argv)
   // Initialize ROS
   ros::init (argc, argv, "dataset");
   ros::NodeHandle nh;
-  ros::Subscriber sub = nh.subscribe("/aidin81/elevation_mapping/elevation_map_raw",
-                            100, subscriberCallback1);
+  ros::Subscriber sub = nh.subscribe("/aidin81/elevation_mapping/elevation_map_raw", 100, subscriberCallback1);
   ros::Rate loop_rate(10);
 
   while (ros::ok())

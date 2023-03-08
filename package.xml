@@ -1,5 +1,5 @@
 <package format="2">
-    <name>dataset</name>
+    <name>dataset_collector</name>
     <description>datasetpackage</description>
     <maintainer email="gobbipenguin@todo.todo">gobbipenguin</maintainer>
     <license>Apache 2.0</license>

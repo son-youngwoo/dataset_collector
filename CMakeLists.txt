@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5.1)
-project(dataset)
+project(dataset_collector)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -52,8 +52,8 @@ catkin_package(
 
 #add_library(thread_class_node
 #  src/thread_node_class.cpp)
-add_executable(dataset src/dataset.cpp)
-target_link_libraries(dataset ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+add_executable(dataset_collector src/dataset_collector.cpp)
+target_link_libraries(dataset_collector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
 catkin_install_python(PROGRAMS src/FH_ROS.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
