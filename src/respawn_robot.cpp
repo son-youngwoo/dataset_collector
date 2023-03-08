@@ -9,7 +9,7 @@ int main(int argc, char** argv)
     ROSInit(nh);
 
 
-    ros::Rate rate(2); // 1초에 2번
+    ros::Rate rate(10); // 1초에 2번
 
     while(ros::ok()) {  
 
@@ -50,38 +50,45 @@ int main(int argc, char** argv)
         }
         
         if (respawn_flag == 1) {
-
-            ROS_ERROR("%f", timer1);
+        
+            cnt1++;
             
-            timer1 += 0.5;
-            
-            if(timer1 == 0.5) {
+            if(cnt1 == 20) {
                 InitializeSensor();
             }
-            if(timer1 == 6) {
+            // else if(cnt0 == 70) {
+            //     respawn_flag = 1;
+            // }
+        // }
+        // else if(respawn_flag == 1) {
+
+            // timer1 += 0.5;
+            // cnt1++;
+            
+            if(cnt1 == 70) {
                 InitializeIMU();
                 ov = 0;
             }
-            else if(timer1 == 7) {
+            else if(cnt1 == 90) {
                 CrawlMode();
             }
-            else if(timer1 == 9) {
+            else if(cnt1 == 110) {
                 StandMode();
             }
-            else if(timer1 == 11 ) {
+            else if(cnt1 == 140 ) {
                 MPCMode();
             }
-            else if(timer1 == 13) {
+            else if(cnt1 == 150) {
                 ResetElevationMap();
             }
-            else if(timer1 == 13.5) {
+            else if(cnt1 == 160) {
                 dataset.id = data_id; // dataset id add
                 GetElevationMap(); // dataset elevation add 
             }
-            else if(timer1 == 14) {
+            else if(cnt1 == 170) {
                 SetYawTarget();
             }
-            else if(timer1 >= 14.5) {
+            else if(cnt1 >= 180) {
                 
                 k++;
 
@@ -125,25 +132,21 @@ int main(int argc, char** argv)
 
                 if(abs(yaw_target - _yaw_target) < 0.01) {
                     
-                    timer2 += 0.5;
+                    cnt2 += 0.5;
 
-                    if (timer2 == 1) {
+                    if (cnt2 == 3) {
                         std_msgs::Float32 xvel_target;
                         xvel_target.data = 0.1;
                         pub_xvel.publish(xvel_target);
 
                         respawn_flag = 2;
-                        timer1 += 0.5;
+                        // cnt1 += 0.5 추가해야될듯!!
                     }
                 }
             }
         }
 
         else if(respawn_flag == 2) { // 4. 성공인지 실패인지 결과가 나오면 데이터셋에 저장하고 퍼블리시하기.
-            timer1 += 0.5;
-            if(timer1 > 35) {
-                respawn_flag = 3;
-            }
             if (get_s_or_f == 1) {
 
                 if (s_or_f == 1) {
@@ -162,25 +165,29 @@ int main(int argc, char** argv)
         }
         else if(respawn_flag == 3) { // 5. 로봇 crawl 자세로 바꾸기
             timer0 = 0;
-            timer1 = 0;
+            cnt1 = 0;
             timer2 = 0;
             timer3 += 0.5;
             k = 0;
+            cnt1 = 0;
+            cnt0 = 0;
+            cnt2 = 0;
+            cnt3++;
 
             arrive = 0;
             overturn = 0;
 
-            if (timer3 == 0.5) {
+            if (cnt3 == 5) {
                 Stop();
             }
-            else if (timer3 == 2.5) {
+            else if (cnt3 == 25) {
                 Respawn();
             }
-            else if (timer3 == 4.5) {
+            else if (cnt3 == 45) {
                 if (ov == 0 ) {
                     data_id++;
                 }
-                timer3 = 0;
+                cnt3 = 0;
                 respawn_flag = 1;
             }
             

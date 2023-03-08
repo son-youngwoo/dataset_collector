@@ -34,9 +34,12 @@ double pitch_limit = 0.7;
 double roll = 0;
 double pitch = 0;
 double yaw = 0;
-int data_id = 1;
+int data_id = 0;
 bool s_or_f;
-int cnt = 0;
+int cnt0 = 0;
+int cnt1 = 0;
+int cnt3 = 0;
+
 double timer0 = 0;
 double timer1 = 0;
 double timer2 = 0;
@@ -312,7 +315,7 @@ void SetYawTarget() {
 
     yaw_target_deg = abs(yaw_target/M_PI*180);
 
-    num_div = yaw_target_deg / 6;
+    num_div = yaw_target_deg / 3;
     
     yaw_target_dis = yaw_target / num_div;
 }

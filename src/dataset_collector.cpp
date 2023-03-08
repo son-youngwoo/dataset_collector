@@ -847,7 +847,7 @@ void SaveDataset() {
     }
 
     // write the header row
-    // file << "id, global initial x, global initial y, local target x, local target y, success or failure" << endl;
+    // file << "id,global_initial_x,global_initial_y,local_target_x,local_target_y,success_or_failure" << endl;
 
     // write some sample data
     file << id << "," << global_initial_x << "," << global_initial_y << "," << local_target_x << "," << local_target_y << "," << s_or_f << endl;
