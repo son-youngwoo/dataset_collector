@@ -83,6 +83,20 @@ int sunseo = 0;
 int mappingstart;
 double cnt = 0;
 
+#include <std_msgs/Float32.h>
+#include <std_msgs/Int64.h>
+
+#include <fstream>
+#include <string>
+using namespace std;
+
+int64 id;
+float global_initial_x;
+float global_initial_y;
+float local_target_x;
+float local_target_y;
+bool s_or_f;
+
 void TargetFoot(const aidin_msgs::four& msg)
 {
 		target_pos.a = msg.a;
@@ -800,7 +814,7 @@ void gridtoimage(const grid_map_msgs::GridMap& msg, int num) //son
 
   srand((unsigned int)time(NULL));
 
-  filePath_="/home/son/Desktop/dataset/num.png";
+  filePath_="/home/son/Desktop/dataset/dataset1/elevation_map/num.png";
   filePath_.replace(filePath_.find("num"), 3, std::to_string(num));
   // nodeHandle_.param("grid_map_topic", gridMapTopic_, std::string("/submap3"));
 
@@ -821,15 +835,59 @@ void getdataset(){
   gridtoimage(Elevation_Map_Copy,cnt);
 }
 
+void SaveDataset() {
+    // create the output file stream
+    // ofstream file("/home/son/Desktop/dataset/dataset1/dataset.csv");
+
+    ofstream file("/home/son/Desktop/dataset/dataset1/dataset.csv", ios::app);
+
+    // check if the file was opened successfully
+    if (!file.is_open()) {
+        cout << "Error opening file!" << endl;
+    }
+
+    // write the header row
+    // file << "id, global initial x, global initial y, local target x, local target y, success or failure" << endl;
+
+    // write some sample data
+    file << id << "," << global_initial_x << "," << global_initial_y << "," << local_target_x << "," << local_target_y << "," << s_or_f << endl;
+
+    // close the file
+    file.close();
+
+    cout << "Data saved to file!" << endl;
+}
+
 // void subscriberCallback1 (const  grid_map_msgs::GridMap& msg1)
 // {   Elevation_Map_Copy = msg1;
 //     mappingstart = 1;}
 
 void msgCallbackDataset(const dataset_collector::dataset& msg) {
+    id = msg.id;
     Elevation_Map_Copy = msg.elevation_map_raw;
-    mappingstart = 1;
+    global_initial_x = msg.global_initial_x;
+    global_initial_y = msg.global_initial_y;
+    local_target_x = msg.local_target_x;
+    local_target_y = msg.local_target_y;
+    s_or_f = msg.s_or_f;
+
+    ROS_INFO("========================================");
+    ROS_INFO("id : %d", id);
+    ROS_INFO("global_inital_x : %f", global_initial_x);
+    ROS_INFO("global_inital_y : %f", global_initial_y);
+    ROS_INFO("local_target_x : %f", local_target_x);
+    ROS_INFO("local_target_y : %f", local_target_y);
+
+    if (s_or_f == 1) {
+      ROS_INFO("**success**");
+    }
+    else {
+      ROS_INFO("**fail**");
+    }
+
+    // mappingstart = 1;
     getdataset();
-    ROS_ERROR("make!");
+    SaveDataset();
 }
 
 int main (int argc, char** argv)
@@ -846,7 +904,7 @@ int main (int argc, char** argv)
     // if(mappingstart == 1) {
     //   getdataset();
     // }
-    // else; 
+    // else;
     ros::spinOnce();
     loop_rate.sleep();
   }

@@ -20,7 +20,7 @@
 #include <cmath>
 
 
-int respawn_flag = 0;
+int respawn_flag = 1;
 bool get_s_or_f = 0;
 bool overturn = 0;
 bool arrive = 0;
@@ -34,7 +34,7 @@ double pitch_limit = 0.7;
 double roll = 0;
 double pitch = 0;
 double yaw = 0;
-int data_id = 0;
+int data_id = 1;
 bool s_or_f;
 int cnt = 0;
 double timer0 = 0;
