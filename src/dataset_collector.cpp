@@ -49,6 +49,8 @@
 #include <aidin_msgs/pt_array.h>
 #include <aidin_msgs/thir.h>
 
+#include <dataset_collector/dataset.h>
+
 #define estimationRadius_normal 0.10//0.08
 #define estimationRadius_roughness  0.10//0.06//0.08//0.08//0.06
 #define criticalValue_roughness  0.05//0.05//0.01//0.007//0.02//0.02
@@ -412,10 +414,6 @@ bool update_roughness1(grid_map::GridMap& mapIn, grid_map::GridMap& mapOut)//,Ei
     }
       
   }
-
-//筌�옙李볟㎤�곸뒇�좎럩肄좑쭪�밤럮筌�옙李볟㎤�욧킐冶⑤뗄李� publish 筌�옙李볟㎤�우퐷占쎈챸�륅㎖占쎌컝占쎈�愿쒎㎤遺우컞筌�옙李볟㎤占� 筌�톪�숋옙占쎌삕占쎌�ｊ맘占쎈쪇逾삼옙洹�룞�좑옙 筌�옙李볟㎤�욧킐冶⑤엨�ㅿ㎖�륁컝筌욌�肄덂ㅇ�묒뵥筌�닂�숋옙�븐퐷塋듽꺂�쇿뜝占� 筌�벨�숃�戮㏐맙占쏙옙�숅겫�곗삕�좎럩�⒴뜝占� 筌�옙李볟㎤�우퐷�좎럩鍮곩뜝�뚯？占썲뜝�뚮た塋딉퐘逾롩걡遺얠��좎럩�⒴뜝占�.. ?
-
-
 
     ROS_DEBUG("roughness max = %f", roughnessMax);
     return true;
@@ -823,24 +821,32 @@ void getdataset(){
   gridtoimage(Elevation_Map_Copy,cnt);
 }
 
-void subscriberCallback1 (const  grid_map_msgs::GridMap& msg1)
-{   Elevation_Map_Copy = msg1;
-    mappingstart = 1;}
+// void subscriberCallback1 (const  grid_map_msgs::GridMap& msg1)
+// {   Elevation_Map_Copy = msg1;
+//     mappingstart = 1;}
+
+void msgCallbackDataset(const dataset_collector::dataset& msg) {
+    Elevation_Map_Copy = msg.elevation_map_raw;
+    mappingstart = 1;
+    getdataset();
+    ROS_ERROR("make!");
+}
 
 int main (int argc, char** argv)
 {
   // Initialize ROS
   ros::init (argc, argv, "dataset");
   ros::NodeHandle nh;
-  ros::Subscriber sub = nh.subscribe("/aidin81/elevation_mapping/elevation_map_raw", 100, subscriberCallback1);
+  // ros::Subscriber sub = nh.subscribe("/aidin81/elevation_mapping/elevation_map_raw", 100, subscriberCallback1);
+  ros::Subscriber sub = nh.subscribe("/aidin81/dataset", 100, msgCallbackDataset);
   ros::Rate loop_rate(10);
 
   while (ros::ok())
   {
-    if(mappingstart == 1) {
-      getdataset();
-    }
-    else; 
+    // if(mappingstart == 1) {
+    //   getdataset();
+    // }
+    // else; 
     ros::spinOnce();
     loop_rate.sleep();
   }
