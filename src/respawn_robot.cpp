@@ -8,92 +8,108 @@ int main(int argc, char** argv)
 
     ROSInit(nh);
 
-
-    ros::Rate rate(10); // 1초에 2번
+    ros::Rate rate(10); 
 
     while(ros::ok()) {  
 
-        if (ov == 0) {
-            if(abs(roll) > roll_limit || abs(pitch) > pitch_limit) {
-                overturn = 1;
-            }
-            else {
-                overturn = 0;
-            }
-        }
-
-        d = sqrt((rand_x_tar - x)*(rand_x_tar - x) + (rand_y_tar - y)*(rand_y_tar - y));
-        R_success = 0.15;
-
-        if ( d < R_success) // arrive or not?
-        {
-            arrive = 1;
+        if(abs(roll) > roll_limit || abs(pitch) > pitch_limit) { 
+            overturn = 1;
         }
         else {
-            arrive = 0;
+            overturn = 0;
         }
 
-        if(overturn  == 1 && arrive == 1) { // failure
-            get_s_or_f = 1;
-            s_or_f = 0;
-        }
-        else if(overturn == 1 && arrive == 0) { // reset      
-            ov = 1;
-            respawn_flag = 3;
-        }
-        else if(overturn == 0 && arrive == 1) { // success
-            get_s_or_f = 1;
-            s_or_f = 1;
-        }
-        else if(overturn == 0 && arrive == 0) { // wait result
-            get_s_or_f = 0;
-        }
-        
-        if (respawn_flag == 1) {
-        
+        if (respawn_flag == 0) {
+            
             cnt1++;
             
-            if(cnt1 == 20) {
-                InitializeSensor();
-            }
-            // else if(cnt0 == 70) {
-            //     respawn_flag = 1;
-            // }
-        // }
-        // else if(respawn_flag == 1) {
-
-            // timer1 += 0.5;
-            // cnt1++;
-            
-            if(cnt1 == 70) {
-                InitializeIMU();
-                ov = 0;
-            }
-            else if(cnt1 == 90) {
-                CrawlMode();
-            }
-            else if(cnt1 == 110) {
-                StandMode();
-            }
-            else if(cnt1 == 140 ) {
-                MPCMode();
-            }
-            else if(cnt1 == 150) {
-                ResetElevationMap();
-            }
-            else if(cnt1 == 160) {
-                dataset.id = data_id; // dataset id add
-                GetElevationMap(); // dataset elevation add 
-            }
-            else if(cnt1 == 170) {
-                SetYawTarget();
-            }
-            else if(cnt1 >= 180) {
+            if(overturn == 1) {
+                cnt_respawn++;
                 
-                k++;
+                if (cnt_respawn == 1) {
+                    Stop();
+                }
+                else if (cnt_respawn == 20) {
+                    Respawn();
+                }
+                else if (cnt_respawn == 40) {
+                    ROS_ERROR("here7");
+                    cnt1 = 0;
+                    cnt2 = 0;
+                    cnt3 = 0;
+                    cnt_respawn = 0;
+                    respawn_flag = 0;
+                }
+            }
+            else if (overturn == 0) {
+                if(cnt1 == 20) {
+                    InitializeSensor();
+                }
+                else if(cnt1 == 70) {
+                    InitializeIMU();  
+                }
+                else if(cnt1 == 90) {
+                    CrawlMode();
+                }
+                else if(cnt1 == 110) {
+                    StandMode();
+                }
+                else if(cnt1 == 140 ) {
+                    MPCMode();
+                }
+                else if(cnt1 == 150) {
+                    ResetElevationMap();
+                }
+                else if(cnt1 == 160) {
+                    dataset.id = data_id; // dataset id add
+                    GetElevationMap(); // dataset elevation add 
+                }
+                else if(cnt1 == 170) {
+                    SetYawTarget();
+                    respawn_flag = 1;
+                }
+            }
 
-                if(k < num_div + 1) {
-                    _yaw_target = yaw_target_dis*k;
+        }
+        
+        else if(respawn_flag == 1) {
+
+            cnt2++;
+
+            if (get_s_or_f == 0) {
+
+                ROS_ERROR("here2");
+
+                d = sqrt((rand_x_tar - x)*(rand_x_tar - x) + (rand_y_tar - y)*(rand_y_tar - y));
+                R_success = 0.15;
+        
+                if ( d < R_success) // arrive or not?
+                {   
+                    if (overturn == 1 || z < 0.3) {
+                        get_s_or_f = 1;
+                        s_or_f = 0;
+                    }
+                    else {
+                        get_s_or_f = 1;
+                        s_or_f = 1;
+                    }
+                }
+                else {
+                    if (overturn == 1) {
+                        get_s_or_f = 1;
+                        s_or_f = 0;
+                    }
+                    else if(cnt2 > 200) {
+                        get_s_or_f = 1;
+                        s_or_f = 0;  
+                    }
+                    else {
+                        get_s_or_f = 0;        
+                    }
+                }
+
+                if(cnt2 < num_div + 1) {
+                    _yaw_target = yaw_target_dis*cnt2;
                 }
                 else {
                     _yaw_target = yaw_target_dis*num_div;
@@ -132,22 +148,18 @@ int main(int argc, char** argv)
 
                 if(abs(yaw_target - _yaw_target) < 0.01) {
                     
-                    cnt2 += 0.5;
+                    cnt3++;
 
-                    if (cnt2 == 3) {
+                    if (cnt3 == 30) {
                         std_msgs::Float32 xvel_target;
                         xvel_target.data = 0.1;
                         pub_xvel.publish(xvel_target);
-
-                        respawn_flag = 2;
-                        // cnt1 += 0.5 추가해야될듯!!
                     }
                 }
             }
-        }
 
-        else if(respawn_flag == 2) { // 4. 성공인지 실패인지 결과가 나오면 데이터셋에 저장하고 퍼블리시하기.
-            if (get_s_or_f == 1) {
+            else if (get_s_or_f == 1) {
+                ROS_ERROR("here3");
 
                 if (s_or_f == 1) {
                     std::cout << "success !" << std::endl; 
@@ -158,40 +170,111 @@ int main(int argc, char** argv)
                 dataset.s_or_f = s_or_f;
 
                 pub_dataset.publish(dataset);
-                
-                respawn_flag = 3;      
+
+                if(respawn_flag == 1) {
+                    
+                    cnt_respawn++;
+                    ROS_ERROR("%d", cnt_respawn);
+
+                    
+                    if (cnt_respawn == 1) {
+                        ROS_ERROR("here4");
+
+                        Stop();
+                    }
+                    else if (cnt_respawn == 20) {
+                        ROS_ERROR("here5");
+
+                        Respawn();
+                    }
+                    else if (cnt_respawn == 40) {
+                        ROS_ERROR("here6");
+                        cnt1 = 0;
+                        cnt2 = 0;
+                        cnt3 = 0;
+                        cnt_respawn = 0;
+                        data_id++;
+                        get_s_or_f = 0;
+                        respawn_flag = 0;
+                    }   
+                }    
             }
 
-        }
-        else if(respawn_flag == 3) { // 5. 로봇 crawl 자세로 바꾸기
-            timer0 = 0;
-            cnt1 = 0;
-            timer2 = 0;
-            timer3 += 0.5;
-            k = 0;
-            cnt1 = 0;
-            cnt0 = 0;
-            cnt2 = 0;
-            cnt3++;
-
-            arrive = 0;
-            overturn = 0;
-
-            if (cnt3 == 5) {
-                Stop();
-            }
-            else if (cnt3 == 25) {
-                Respawn();
-            }
-            else if (cnt3 == 45) {
-                if (ov == 0 ) {
-                    data_id++;
-                }
-                cnt3 = 0;
-                respawn_flag = 1;
-            }
             
+
+
         }
+
+        //     if(successorfailure == 2) { // 4. 성공인지 실패인지 결과가 나오면 데이터셋에 저장하고 퍼블리시하기.
+
+        //         cnt++; 
+
+        //         d = sqrt((rand_x_tar - x)*(rand_x_tar - x) + (rand_y_tar - y)*(rand_y_tar - y));
+        //         R_success = 0.15;
+        
+        //         if ( d < R_success || z > 0.3) // arrive or not?
+        //         {   
+        //             get_s_or_f = 1;
+        //             s_or_f = 1;
+        //         }
+        //         else {
+        //             get_s_or_f = 0;
+        //         }
+
+        //         if (get_s_or_f == 1) {
+
+        //             if (s_or_f == 1) {
+        //                 std::cout << "success !" << std::endl; 
+        //             }
+        //             else {
+        //                 std::cout << "fail !" << std::endl; 
+        //             }
+        //             dataset.s_or_f = s_or_f;
+
+        //             pub_dataset.publish(dataset);
+                    
+        //             respawn_flag = 3;      
+        //         }
+        //         if (cnt > 20) {
+        //             get_s_or_f = 1;
+        //             s_or_f = 0;
+        //         }
+        //     }
+        // }
+
+
+        // else if(respawn_flag == 3) { // 5. 로봇 crawl 자세로 바꾸기
+        //     k = 0;
+        //     cnt1 = 0;
+        //     cnt0 = 0;
+        //     cnt2 = 0;
+        //     cnt3++;
+
+        //     arrive = 0;
+        //     overturn = 0;
+            
+        //     if(reset == 1) {
+                
+        //     }
+        //     else if(reset == 0) {
+
+        //     }
+
+        //     if (cnt3 == 5) {
+        //         Stop();
+        //     }
+        //     else if (cnt3 == 25) {
+        //         Respawn();
+        //     }
+        //     else if (cnt3 == 45) {
+        //         if (ov == 0 ) {
+        //             data_id++;
+        //         }
+        //         cnt3 = 0;
+        //         respawn_flag = 0;
+        //     }
+            
+        // }
         ros::spinOnce();
         rate.sleep();
     }

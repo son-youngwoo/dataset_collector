@@ -20,7 +20,7 @@
 #include <cmath>
 
 
-int respawn_flag = 0;
+int respawn_flag = 1;
 bool get_s_or_f = 0;
 bool overturn = 0;
 bool arrive = 0;
@@ -40,8 +40,6 @@ int cnt0 = 0;
 int cnt1 = 0;
 int cnt2 = 0;
 int cnt3 = 0;
-int cnt_respawn = 0;
-
 
 double timer0 = 0;
 double timer1 = 0;
