@@ -871,18 +871,25 @@ void msgCallbackDataset(const dataset_collector::dataset& msg) {
     local_target_y = msg.local_target_y;
     s_or_f = msg.s_or_f;
 
-    ROS_INFO("========================================");
-    ROS_INFO("id : %d", id);
-    ROS_INFO("global_inital_x : %f", global_initial_x);
-    ROS_INFO("global_inital_y : %f", global_initial_y);
-    ROS_INFO("local_target_x : %f", local_target_x);
-    ROS_INFO("local_target_y : %f", local_target_y);
+    // ROS_INFO("========================================");
+    std::cout << "======================================" << std::endl;
+    std::cout << "id: " << id << std::endl;
+    std::cout << "global_inital_x: " << global_initial_x << std::endl;
+    std::cout << "global_inital_y: " << global_initial_y << std::endl;
+    std::cout << "local_target_x: " << local_target_x << std::endl;
+    std::cout << "local_target_y: " << local_target_y << std::endl;  
+
+    // ROS_INFO("id : %d", id);
+    // ROS_INFO("global_inital_x : %f", global_initial_x);
+    // ROS_INFO("global_inital_y : %f", global_initial_y);
+    // ROS_INFO("local_target_x : %f", local_target_x);
+    // ROS_INFO("local_target_y : %f", local_target_y);
 
     if (s_or_f == 1) {
-      ROS_INFO("**success**");
+      std::cout << "result: success" << std::endl;  
     }
     else {
-      ROS_INFO("**fail**");
+      std::cout << "result: failure" << std::endl;  
     }
 
     // mappingstart = 1;

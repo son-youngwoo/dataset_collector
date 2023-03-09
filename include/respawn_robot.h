@@ -19,57 +19,51 @@
 #include <iostream>
 #include <cmath>
 
-
-int respawn_flag = 0;
+int cnt1 = 0;
+int step = 2;
 bool get_s_or_f = 0;
 bool overturn = 0;
-bool arrive = 0;
 double x = 0;
 double y = 0;
 double z = 0;
-double x_thres = 0.05;
-double y_thres = 0.05;
-double roll_limit = 0.7;
-double pitch_limit = 0.7;
 double roll = 0;
 double pitch = 0;
 double yaw = 0;
-int data_id = 0;
+double roll_limit = 0.7;
+double pitch_limit = 0.7;
+int data_id = 1;
 bool s_or_f;
-int cnt0 = 0;
-int cnt1 = 0;
-int cnt2 = 0;
-int cnt3 = 0;
+int cnt_ready = 0;
+int cnt_s_or_f = 0;
+int cnt_path = 0;
+int cnt_vel = 0;
+int cnt_data = 0;
 int cnt_respawn = 0;
 
-
-double timer0 = 0;
-double timer1 = 0;
-double timer2 = 0;
-double _timer2 = 0;
-double timer3 = 0;
-double timer_reset = 0;
+double yaw_init = 0;
 double yaw_target = 0;
 double _yaw_target = 0;
 double __yaw_target = 0;
 double yaw_target_dis = 0;
-int k = -1;
 double rand_x_tar = 0;
 double rand_y_tar = 0;
 double x_init = 0;
 double y_init = 0;
 int num_div = 0;
 double yaw_target_deg = 0;
-double add_x = 0;
-double add_y = 0;
+double pos_x = 0;
+double pos_y = 0;
+
 double d = 0;
 double R_success = 0;
 double xvel_target = 0;
-double yvel_target = 0;
-bool reset = 0;
-bool ov = 0;
+
+double min_radius = 0.8;
+double max_radius = 1.0;
 
 void Reset();
+
+using namespace std;
 
 ros::Subscriber sub_bodypose;
 ros::Subscriber sub_elevationmap;
@@ -85,6 +79,7 @@ ros::ServiceClient client;
 
 dataset_collector::dataset dataset;
 grid_map_msgs::GridMap elevation_map_raw_copy;
+grid_map_msgs::GridMap elevation_map_raw;
 std_msgs::Int8 controlinput;
 
 void msgCallbackBodyPose(const std_msgs::Float32MultiArray::ConstPtr& msg)
@@ -95,53 +90,12 @@ void msgCallbackBodyPose(const std_msgs::Float32MultiArray::ConstPtr& msg)
     roll = msg->data[3];
     pitch = msg->data[4];
     yaw = msg->data[5];
-
-    // if (ov == 0) {
-    //     if(roll > roll_limit || pitch > pitch_limit) {
-    //         overturn = 1;
-    //     }
-    //     else {
-    //         overturn = 0;
-    //     }
-    // }
-    // d = sqrt((rand_x_tar - x)*(rand_x_tar - x) + (rand_y_tar - y)*(rand_y_tar - y));
-    // R_success = 0.15;
-    //  if ( d < R_success) // arrive or not?
-    // {
-    //     arrive = 1;
-    // }
-    // else {
-    //     arrive = 0;
-    // }
-
-    // if(overturn  == 1 && arrive == 1) { // failure
-    //     get_s_or_f = 1;
-    //     s_or_f = 0;
-    // }
-    // else if(overturn == 1 && arrive == 0) { // reset      
-    //     // respawn_flag = 5;
-    //     // reset = 1;
-    //     ov = 1;
-    //     respawn_flag = 5;
-    // }
-    // else if(overturn == 0 && arrive == 1) { // success
-    //     get_s_or_f = 1;
-    //     s_or_f = 1;
-    // }
-    // else if(overturn == 0 && arrive == 0) { // wait result
-    //     get_s_or_f = 0;
-    // }
 }
-
-// void subscriberCallback1 (const  grid_map_msgs::GridMap& msg1)
-// {   Elevation_Map_Copy = msg1;
-//     mappingstart = 1;}
 
 void msgCallbackElevationMap(const grid_map_msgs::GridMap& msg)
 {
     elevation_map_raw_copy = msg;
 }
-
 
 void ROSInit(ros::NodeHandle& _nh)
 {
@@ -158,54 +112,68 @@ void ROSInit(ros::NodeHandle& _nh)
     client = _nh.serviceClient<std_srvs::Empty>("/aidin81/elevation_mapping/clear_map");
 }
 
-void CrawlMode() {
-    controlinput.data = 3;
-    pub_controlinput.publish(controlinput);
-    std::cout << "command crawl mode"  << std::endl;  
+
+void PubZeroTorqueFlag(bool _zerotorqueflag){
+    std_msgs::Bool zerotorqueflag;
+    zerotorqueflag.data = _zerotorqueflag;
+    pub_zerotorqueflag.publish(zerotorqueflag);
 }
 
 void InitializeSensor() {
-    std::cout << "initialize sensor" << std::endl;
+    // std::cout << "1. initialize imu roll, pitch & encoder" << std::endl;
     controlinput.data = 1;
     pub_controlinput.publish(controlinput);
 }
 
-void InitializeIMU() {
-    std::cout << "initialize imu" << std::endl;
+void InitializeYaw() {
+    // std::cout << "2. initialize imu yaw" << std::endl;
     controlinput.data = 2;
     pub_controlinput.publish(controlinput);
 }
 
+void StartMode() {
+    // std::cout << "3. crawl"   << std::endl;  
+    controlinput.data = 9;
+    pub_controlinput.publish(controlinput);
+}
+
+void CrawlMode() {
+    // std::cout << "3. crawl"   << std::endl;  
+    controlinput.data = 3;
+    pub_controlinput.publish(controlinput);
+}
+
 void StandMode() {
-    std::cout << "command stand mode"  << std::endl;
+    // std::cout << "4. stand"  << std::endl;
     controlinput.data = 4;
     pub_controlinput.publish(controlinput);
 }
 
 void MPCMode() {
-    std::cout << "cammand mpc mode" << std::endl;
+    // std::cout << "5. mpc" << std::endl;
     controlinput.data = 5;
     pub_controlinput.publish(controlinput); 
 }
 
 void ResetElevationMap() {
-    std::cout << "elevation map reset" << std::endl;
+    // std::cout << "elevation map reset" << std::endl;
     std_srvs::Empty srv;
     if (client.call(srv)) {
-        ROS_INFO("Elevation map cleared.");
+        std::cout << "  > elevation map cleared" << std::endl;
     } else {
-        ROS_ERROR("Failed to call service /aidin81/elevation_mapping/clear_map");
+        //ROS_ERROR("Failed to call service /aidin81/elevation_mapping/clear_map");
     }
-}
-
-void GetElevationMap() {
-    std::cout << "get elevation map" << std::endl;        
-    dataset.elevation_map_raw = elevation_map_raw_copy;
 }
 
 void PublishZeroVelocity() {
     std_msgs::Float32 xvel_target;
     xvel_target.data = 0;
+    pub_xvel.publish(xvel_target);
+}
+
+void PublishVelocity() {
+    std_msgs::Float32 xvel_target;
+    xvel_target.data = 0.1;
     pub_xvel.publish(xvel_target);
 }
 
@@ -238,14 +206,8 @@ void PublishZeroPath() {
     pub_path.publish(path);
 }
 
-void Stop() {         
-    CrawlMode();
-    PublishZeroVelocity();
-    PublishZeroPath();
-}
-
 void Respawn() {
-    std::cout << "respawn ..." << std::endl;        
+    //std::cout << "respawn ..." << std::endl;        
 
     // create a random number generator engine
     std::random_device rd_init;
@@ -273,7 +235,7 @@ void Respawn() {
     if (client.call(srv))
     {
         // ROS_INFO("Robot respawned successfully");
-        std::cout << "respawn x: " << rand_x_init << " y: " << rand_y_init << std::endl;        
+        //std::cout << "respawn x: " << rand_x_init << " y: " << rand_y_init << std::endl;        
     }
     else
     {
@@ -281,61 +243,88 @@ void Respawn() {
     }
 }
 
-void SetYawTarget() {
-    std::cout << "publish target position" << std::endl;        
+void PublishPath(int _cnt_path){
+    if (_cnt_path == 1) {
+        //std::cout << "publish target position" << std::endl;        
 
-    // Define the minimum and maximum radii
-    double min_radius = 0.8;
-    double max_radius = 1.0;
-    double centerX = x;
-    double centerY = y;
+        x_init = x;
+        y_init = y;
+        
+        std::cout << "global_initial_x: " << x_init << std::endl;        // test
+        std::cout << "global_initial_y: " << y_init << std::endl;        // test
 
-    x_init = x;
-    y_init = y;
+        // Define the random number generator
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<> dis_angle(0.0, 2.0 * M_PI);
+        std::uniform_real_distribution<> dis_radius(min_radius, max_radius);
+        
+        // Generate a random angle and distance
+        double angle = dis_angle(gen);
+        double radius = dis_radius(gen);
+        
+        // Calculate the x and y coordinates
+        rand_x_tar = x_init + radius * std::cos(angle); // world base
+        rand_y_tar = y_init + radius * std::sin(angle); // world base
 
-    dataset.global_initial_x = x_init;
-    dataset.global_initial_y = y_init;
-    
-    // Define the random number generator
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dis_angle(0.0, 2.0 * M_PI);
-    std::uniform_real_distribution<> dis_radius(min_radius, max_radius);
-    
-    // Generate a random angle and distance
-    double angle = dis_angle(gen);
-    double radius = dis_radius(gen);
-    
-    // Calculate the x and y coordinates
-    rand_x_tar = centerX + radius * std::cos(angle); // world base
-    rand_y_tar = centerY + radius * std::sin(angle); // world base
+        std::cout << "global_initial_x: " << rand_x_tar - x_init << std::endl;       // test 
+        std::cout << "global_initial_y: " << rand_y_tar - y_init << std::endl;       // test
+        
+        pos_x = cos(-yaw_init)*(rand_x_tar - x)-sin(-yaw_init)*(rand_y_tar - y);
+        pos_y = sin(-yaw_init)*(rand_x_tar - x)+cos(-yaw_init)*(rand_y_tar - y);
 
-    // target x,y dataset 저장.
-    dataset.local_target_x = rand_x_tar - centerX; // robot base
-    dataset.local_target_y = rand_y_tar - centerY; // robot base
+        // yaw_target = atan2(rand_y_tar - y, rand_x_tar - x); // theta based world frame
+        yaw_target = atan2(pos_y, pos_x); // theta based world frame
 
-    yaw_target = atan2(rand_y_tar - y, rand_x_tar - x); // theta based world frame
+        yaw_target_deg = abs(yaw_target/M_PI*180);
 
-    yaw_target_deg = abs(yaw_target/M_PI*180);
+        num_div = yaw_target_deg / 3;
+        
+        yaw_target_dis = yaw_target / num_div;
 
-    num_div = yaw_target_deg / 3;
-    
-    yaw_target_dis = yaw_target / num_div;
-}
+    }
 
-void PublishPath(double _x_init, double _y_init, double _rand_x_tar, double _rand_y_tar){
-
-}
-
-double GetYawTarget(int _num_div, double _yaw_target_dis) {
-    k++;
-
-    if(k < num_div + 1) {
-        __yaw_target = _yaw_target_dis*k;
+    if(_cnt_path < num_div + 1) {
+        _yaw_target = yaw_target_dis*_cnt_path;
     }
     else {
-        __yaw_target = _yaw_target_dis*_num_div;
+        _yaw_target = yaw_target_dis*num_div;
     }
 
-    return __yaw_target;
+    tf2::Quaternion q;
+    q.setRPY(0, 0, _yaw_target);
+
+    tf2::Quaternion q_init;
+    q_init.setRPY(roll, pitch, yaw);
+
+    nav_msgs::Path path;
+
+    path.header.stamp = ros::Time::now();
+    path.header.frame_id = "world";
+    path.poses.resize(2);  // allocate memory for the poses array
+    path.poses[0].header.frame_id = "world";
+    path.poses[0].header.stamp = ros::Time::now();
+    path.poses[0].pose.position.x = x_init;
+    path.poses[0].pose.position.y = y_init;
+    path.poses[0].pose.orientation.x = q_init.x();
+    path.poses[0].pose.orientation.y = q_init.y();
+    path.poses[0].pose.orientation.z = q_init.z();
+    path.poses[0].pose.orientation.w = q_init.w();
+
+    path.poses[1].header.frame_id = "world";
+    path.poses[1].header.stamp = ros::Time::now();
+    path.poses[1].pose.position.x = rand_x_tar;
+    path.poses[1].pose.position.y = rand_y_tar;
+    path.poses[1].pose.orientation.x = q.x();
+    path.poses[1].pose.orientation.y = q.y();
+    path.poses[1].pose.orientation.z = q.z();
+    path.poses[1].pose.orientation.w = q.w();
+
+    pub_path.publish(path);
+}
+
+void print_check(int _cnt, string msg) {
+    if (_cnt%10 == 1) {
+        std::cout << msg << std::endl;
+    }
 }

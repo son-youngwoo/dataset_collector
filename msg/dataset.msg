@@ -4,4 +4,10 @@ float32 global_initial_x
 float32 global_initial_y
 float32 local_target_x
 float32 local_target_y
+float32 yaw_init
+float32 yaw_target
+float32 roll_max
+float32 roll_min
+float32 pitch_max
+float32 pitch_min
 bool s_or_f
