@@ -256,25 +256,58 @@ void PublishPath(int _cnt_path){
         // Define the random number generator
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_real_distribution<> dis_angle(0.0, 2.0 * M_PI);
+        std::uniform_real_distribution<> dis_angle(-M_PI, M_PI);
         std::uniform_real_distribution<> dis_radius(min_radius, max_radius);
         
         // Generate a random angle and distance
         double angle = dis_angle(gen);
         double radius = dis_radius(gen);
         
+        // rand_x_tar = x_init + radius * std::cos(angle + yaw_init); // world base
+        // rand_y_tar = y_init + radius * std::sin(angle + yaw_init); // world base
+        // ROS_ERROR("local 기준 angle :%f", (angle)/M_PI*180);
+
+        // std::cout << "local_initial_x: " << rand_x_tar - x_init << std::endl;       // test 
+        // std::cout << "local_initial_y: " << rand_y_tar - y_init << std::endl;       // test
+        
+        // // pos_x = cos(-yaw_init)*(rand_x_tar - x)-sin(-yaw_init)*(rand_y_tar - y);
+        // // pos_y = sin(-yaw_init)*(rand_x_tar - x)+cos(-yaw_init)*(rand_y_tar - y);
+        // ROS_ERROR("yaw_init : %f", yaw_init);
+        // ROS_ERROR("rand_x_tar : %f", rand_x_tar);
+        // ROS_ERROR("rand_x_tar : %f", rand_y_tar);
+
+
+        // // yaw_target = atan2(rand_y_tar - y, rand_x_tar - x); // theta based world frame
+        // yaw_target = angle; // theta based world frame
+        // ROS_ERROR("yaw_target : %f", yaw_target);
+
+        // yaw_target_deg = abs(yaw_target/M_PI*180);
+
+        // num_div = yaw_target_deg / 3;
+        
+        // yaw_target_dis = yaw_target / num_div; 
+
         // Calculate the x and y coordinates
         rand_x_tar = x_init + radius * std::cos(angle); // world base
         rand_y_tar = y_init + radius * std::sin(angle); // world base
+        ROS_ERROR("angle :%f", angle/M_PI*180);
 
-        std::cout << "global_initial_x: " << rand_x_tar - x_init << std::endl;       // test 
-        std::cout << "global_initial_y: " << rand_y_tar - y_init << std::endl;       // test
+
+        std::cout << "local_initial_x: " << rand_x_tar - x_init << std::endl;       // test 
+        std::cout << "local_initial_y: " << rand_y_tar - y_init << std::endl;       // test
         
         pos_x = cos(-yaw_init)*(rand_x_tar - x)-sin(-yaw_init)*(rand_y_tar - y);
         pos_y = sin(-yaw_init)*(rand_x_tar - x)+cos(-yaw_init)*(rand_y_tar - y);
+        ROS_ERROR("yaw_init : %f", yaw_init);
+        ROS_ERROR("pos_x : %f", pos_x);
+        ROS_ERROR("pos_y : %f", pos_y);
 
-        // yaw_target = atan2(rand_y_tar - y, rand_x_tar - x); // theta based world frame
-        yaw_target = atan2(pos_y, pos_x); // theta based world frame
+
+        yaw_target = atan2(rand_y_tar - y, rand_x_tar - x); // theta based world frame = angle 
+        // yaw_target = atan2(pos_y, pos_x); // theta based world frame = angle + yaw_init
+        // yaw_target = angle + yaw_init; // theta based world frame
+
+        ROS_ERROR("yaw_target : %f", yaw_target);
 
         yaw_target_deg = abs(yaw_target/M_PI*180);
 
@@ -295,7 +328,7 @@ void PublishPath(int _cnt_path){
     q.setRPY(0, 0, _yaw_target);
 
     tf2::Quaternion q_init;
-    q_init.setRPY(roll, pitch, yaw);
+    q_init.setRPY(0, 0, yaw_init);
 
     nav_msgs::Path path;
 

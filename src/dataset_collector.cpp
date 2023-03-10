@@ -828,11 +828,10 @@ void gridtoimage(const grid_map_msgs::GridMap& msg, int num) //son
   image.toImageMsg(ros_image);
 }
 
-void getdataset(){
+void getdataset(int _id){
   grid_map::GridMap raw_map;
   grid_map::GridMapRosConverter::fromMessage(Elevation_Map_Copy, raw_map);
-  cnt++;
-  gridtoimage(Elevation_Map_Copy,cnt);
+  gridtoimage(Elevation_Map_Copy,_id);
 }
 
 void SaveDataset() {
@@ -879,12 +878,6 @@ void msgCallbackDataset(const dataset_collector::dataset& msg) {
     std::cout << "local_target_x: " << local_target_x << std::endl;
     std::cout << "local_target_y: " << local_target_y << std::endl;  
 
-    // ROS_INFO("id : %d", id);
-    // ROS_INFO("global_inital_x : %f", global_initial_x);
-    // ROS_INFO("global_inital_y : %f", global_initial_y);
-    // ROS_INFO("local_target_x : %f", local_target_x);
-    // ROS_INFO("local_target_y : %f", local_target_y);
-
     if (s_or_f == 1) {
       std::cout << "result: success" << std::endl;  
     }
@@ -893,7 +886,7 @@ void msgCallbackDataset(const dataset_collector::dataset& msg) {
     }
 
     // mappingstart = 1;
-    getdataset();
+    getdataset(id);
     SaveDataset();
 }
 

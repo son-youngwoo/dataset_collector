@@ -1,4 +1,4 @@
-int8 id
+int64 id
 grid_map_msgs/GridMap elevation_map_raw
 float32 global_initial_x
 float32 global_initial_y
@@ -10,4 +10,5 @@ float32 roll_max
 float32 roll_min
 float32 pitch_max
 float32 pitch_min
+int64 duration
 bool s_or_f
