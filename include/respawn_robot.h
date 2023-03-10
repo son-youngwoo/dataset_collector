@@ -2,6 +2,8 @@
 
 #include <gazebo_msgs/ModelState.h>
 #include <gazebo_msgs/SetModelState.h>
+#include <gazebo/gazebo.hh>
+#include <gazebo/common/Events.hh>
 
 #include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/Float32.h>
@@ -19,7 +21,9 @@
 #include <iostream>
 #include <cmath>
 
+int cnt_resetworld = 0;
 int cnt1 = 0;
+double cnt_duration = 0;
 int step = 2;
 bool get_s_or_f = 0;
 bool overturn = 0;
@@ -67,6 +71,7 @@ using namespace std;
 
 ros::Subscriber sub_bodypose;
 ros::Subscriber sub_elevationmap;
+ros::Subscriber sub_estimatedz;
 
 ros::Publisher pub_path;
 ros::Publisher pub_zerotorqueflag;
@@ -76,17 +81,24 @@ ros::Publisher pub_xvel;
 ros::Publisher pub_vel;
 
 ros::ServiceClient client;
+// ros::ServiceClient resetClient;
+ros::ServiceClient resetClient;
 
 dataset_collector::dataset dataset;
 grid_map_msgs::GridMap elevation_map_raw_copy;
 grid_map_msgs::GridMap elevation_map_raw;
 std_msgs::Int8 controlinput;
 
+void msgCallbackEstimatedZ(const std_msgs::Float32::ConstPtr& msg) {
+    z = msg->data;
+    // ROS_ERROR("%f", z);
+}
+
 void msgCallbackBodyPose(const std_msgs::Float32MultiArray::ConstPtr& msg)
 {
     x = msg->data[0];
     y = msg->data[1];
-    z = msg->data[2];
+    // z = msg->data[2];
     roll = msg->data[3];
     pitch = msg->data[4];
     yaw = msg->data[5];
@@ -101,6 +113,7 @@ void ROSInit(ros::NodeHandle& _nh)
 {
     sub_bodypose = _nh.subscribe("/aidin81/BodyPose_sim", 10, msgCallbackBodyPose);
     sub_elevationmap = _nh.subscribe("/aidin81/elevation_mapping/elevation_map_raw", 10, msgCallbackElevationMap);
+    sub_estimatedz = _nh.subscribe("/aidin81/estimatedz", 10, msgCallbackEstimatedZ);
 
     pub_path = _nh.advertise<nav_msgs::Path>("/aidin81/Path", 100);
     pub_zerotorqueflag = _nh.advertise<std_msgs::Bool>("/aidin81/ZeroTorqueFlag", 100);
@@ -110,6 +123,10 @@ void ROSInit(ros::NodeHandle& _nh)
     pub_vel = _nh.advertise<std_msgs::Float32MultiArray>("/aidin81/vel_target", 100);
 
     client = _nh.serviceClient<std_srvs::Empty>("/aidin81/elevation_mapping/clear_map");
+    resetClient = _nh.serviceClient<std_srvs::Empty>("/gazebo/reset_world");
+    // resetClient = _nh.serviceClient<std_srvs::Empty>("/gazebo/reset_simulation");
+    // ros::ServiceClient resetClient = nh.serviceClient<gazebo_msgs::ResetModel>("/gazebo/reset_model");
+
 }
 
 
@@ -173,7 +190,7 @@ void PublishZeroVelocity() {
 
 void PublishVelocity() {
     std_msgs::Float32 xvel_target;
-    xvel_target.data = 0.1;
+    xvel_target.data = 0.3;
     pub_xvel.publish(xvel_target);
 }
 
@@ -219,14 +236,17 @@ void Respawn() {
     double rand_x_init = dis_init(gen_init);
     double rand_y_init = dis_init(gen_init);
 
+    // tf2::Quaternion q1;
+    // q1.setRPY(0, 0, 1.57);
+
     gazebo_msgs::ModelState modelState;
     modelState.model_name = "aidin81";  // Replace with your robot's name
     modelState.pose.position.x = rand_x_init;   // Replace with your robot's starting position
     modelState.pose.position.y = rand_y_init;
-    modelState.pose.position.z = 0.5;
-    modelState.pose.orientation.x = 0.0;  // Replace with your robot's starting orientation
-    modelState.pose.orientation.y = 0.0;
-    modelState.pose.orientation.z = 0.0;
+    modelState.pose.position.z = 1.1;
+    modelState.pose.orientation.x = 0;  // Replace with your robot's starting orientation
+    modelState.pose.orientation.y = 0;
+    modelState.pose.orientation.z = 0;
     modelState.pose.orientation.w = 1;
     ros::NodeHandle nh;
     ros::ServiceClient client = nh.serviceClient<gazebo_msgs::SetModelState>("/gazebo/set_model_state");
@@ -250,8 +270,8 @@ void PublishPath(int _cnt_path){
         x_init = x;
         y_init = y;
         
-        std::cout << "global_initial_x: " << x_init << std::endl;        // test
-        std::cout << "global_initial_y: " << y_init << std::endl;        // test
+        // std::cout << "global_initial_x: " << x_init << std::endl;        // test
+        // std::cout << "global_initial_y: " << y_init << std::endl;        // test
 
         // Define the random number generator
         std::random_device rd;
@@ -263,55 +283,19 @@ void PublishPath(int _cnt_path){
         double angle = dis_angle(gen);
         double radius = dis_radius(gen);
         
-        // rand_x_tar = x_init + radius * std::cos(angle + yaw_init); // world base
-        // rand_y_tar = y_init + radius * std::sin(angle + yaw_init); // world base
-        // ROS_ERROR("local 기준 angle :%f", (angle)/M_PI*180);
-
-        // std::cout << "local_initial_x: " << rand_x_tar - x_init << std::endl;       // test 
-        // std::cout << "local_initial_y: " << rand_y_tar - y_init << std::endl;       // test
-        
-        // // pos_x = cos(-yaw_init)*(rand_x_tar - x)-sin(-yaw_init)*(rand_y_tar - y);
-        // // pos_y = sin(-yaw_init)*(rand_x_tar - x)+cos(-yaw_init)*(rand_y_tar - y);
-        // ROS_ERROR("yaw_init : %f", yaw_init);
-        // ROS_ERROR("rand_x_tar : %f", rand_x_tar);
-        // ROS_ERROR("rand_x_tar : %f", rand_y_tar);
-
-
-        // // yaw_target = atan2(rand_y_tar - y, rand_x_tar - x); // theta based world frame
-        // yaw_target = angle; // theta based world frame
-        // ROS_ERROR("yaw_target : %f", yaw_target);
-
-        // yaw_target_deg = abs(yaw_target/M_PI*180);
-
-        // num_div = yaw_target_deg / 3;
-        
-        // yaw_target_dis = yaw_target / num_div; 
-
         // Calculate the x and y coordinates
         rand_x_tar = x_init + radius * std::cos(angle); // world base
         rand_y_tar = y_init + radius * std::sin(angle); // world base
-        ROS_ERROR("angle :%f", angle/M_PI*180);
 
-
-        std::cout << "local_initial_x: " << rand_x_tar - x_init << std::endl;       // test 
-        std::cout << "local_initial_y: " << rand_y_tar - y_init << std::endl;       // test
-        
         pos_x = cos(-yaw_init)*(rand_x_tar - x)-sin(-yaw_init)*(rand_y_tar - y);
         pos_y = sin(-yaw_init)*(rand_x_tar - x)+cos(-yaw_init)*(rand_y_tar - y);
-        ROS_ERROR("yaw_init : %f", yaw_init);
-        ROS_ERROR("pos_x : %f", pos_x);
-        ROS_ERROR("pos_y : %f", pos_y);
 
-
-        yaw_target = atan2(rand_y_tar - y, rand_x_tar - x); // theta based world frame = angle 
-        // yaw_target = atan2(pos_y, pos_x); // theta based world frame = angle + yaw_init
-        // yaw_target = angle + yaw_init; // theta based world frame
-
-        ROS_ERROR("yaw_target : %f", yaw_target);
+        // yaw_target = atan2(rand_y_tar - y, rand_x_tar - x); // theta based world frame = angle 
+        yaw_target = atan2(pos_y, pos_x); // theta based world frame = angle + yaw_init
 
         yaw_target_deg = abs(yaw_target/M_PI*180);
 
-        num_div = yaw_target_deg / 3;
+        num_div = yaw_target_deg / 4;
         
         yaw_target_dis = yaw_target / num_div;
 
@@ -361,3 +345,4 @@ void print_check(int _cnt, string msg) {
         std::cout << msg << std::endl;
     }
 }
+

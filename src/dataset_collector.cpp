@@ -90,11 +90,14 @@ double cnt = 0;
 #include <string>
 using namespace std;
 
-int64 id;
+int id;
 float global_initial_x;
 float global_initial_y;
 float local_target_x;
 float local_target_y;
+float yaw_init;
+float yaw_target;
+float duration;
 bool s_or_f;
 
 void TargetFoot(const aidin_msgs::four& msg)
@@ -849,7 +852,8 @@ void SaveDataset() {
     // file << "id,global_initial_x,global_initial_y,local_target_x,local_target_y,success_or_failure" << endl;
 
     // write some sample data
-    file << id << "," << global_initial_x << "," << global_initial_y << "," << local_target_x << "," << local_target_y << "," << s_or_f << endl;
+    file << id << "," << global_initial_x << "," << global_initial_y << "," << local_target_x << "," << local_target_y << "," << yaw_init << "," << yaw_target << "," << duration << "," << s_or_f << endl;
+
 
     // close the file
     file.close();
@@ -868,6 +872,9 @@ void msgCallbackDataset(const dataset_collector::dataset& msg) {
     global_initial_y = msg.global_initial_y;
     local_target_x = msg.local_target_x;
     local_target_y = msg.local_target_y;
+    yaw_init = msg.yaw_init;
+    yaw_target = msg.yaw_target;
+    duration = msg.duration;
     s_or_f = msg.s_or_f;
 
     // ROS_INFO("========================================");

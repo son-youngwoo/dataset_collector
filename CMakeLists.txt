@@ -24,11 +24,15 @@ find_package(catkin REQUIRED COMPONENTS ${PKG_DEPS}
   grid_map_cv
   cv_bridge
   eigen_conversions
-  sensor_msgs)
+  sensor_msgs
+  )
 
 find_package(Eigen3 REQUIRED
 )
 #find_package(OpenCV 3 REQUIRED)
+
+## Gazebo
+find_package(gazebo REQUIRED)
 
 find_package(OpenCV REQUIRED
   COMPONENTS
@@ -52,6 +56,14 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${Eigen_INCLUDE_DIRS}
   ${OCTOMAP_INCLUDE_DIR}  
+
+  # Gazebo
+  ${GAZEBO_INCLUDE_DIRS}
+)
+
+link_directories(
+    # Gazebo
+    ${GAZEBO_LIBRARY_DIRS}
 )
 
 catkin_package(
@@ -77,6 +89,7 @@ add_executable(respawn_robot src/respawn_robot.cpp)
 add_dependencies(respawn_robot ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(respawn_robot
   ${catkin_LIBRARIES}
+  ${GAZEBO_LIBRARIES}
 )
 
 catkin_install_python(PROGRAMS src/FH_ROS.py
