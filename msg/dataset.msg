@@ -1,5 +1,4 @@
 int64 id
-grid_map_msgs/GridMap elevation_map_raw
 float32 global_initial_x
 float32 global_initial_y
 float32 local_target_x
@@ -8,3 +7,4 @@ float32 yaw_init
 float32 yaw_target
 float32 duration
 bool s_or_f
+grid_map_msgs/GridMap elevation_map_raw

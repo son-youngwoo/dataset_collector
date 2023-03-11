@@ -1311,7 +1311,6 @@
 //     return 0;
 // }
 
-// resetworld 추가
 #include "respawn_robot.h"
 
 int main(int argc, char** argv)
@@ -1323,7 +1322,7 @@ int main(int argc, char** argv)
     ROSInit(nh);
 
     ros::Rate rate(10); 
-
+    
     while(ros::ok()) {
 
         if(abs(roll) > roll_limit || abs(pitch) > pitch_limit) { 
@@ -1333,11 +1332,15 @@ int main(int argc, char** argv)
         if (step == 2) {
             cnt1++;
             if(cnt1 == 20) {
-                std::cout << "  > initialize imu roll, pitch && encoder" << std::endl;
+                std::cout << "First Ready" << std::endl;
+                std::cout << "  > initialize imu yaw && encoder" << std::endl;
+                outfile << "First Ready\n";
+                outfile << "  > initialize imu yaw && encoder\n";
                 InitializeSensor();
             }
             else if(cnt1 == 80) { // 2
                 std::cout << "  > initialize imu yaw" << std::endl;
+                outfile << "  > initialize imu yaw\n";
                 InitializeYaw();  
             }
             else if(cnt1 == 100) {
@@ -1348,7 +1351,8 @@ int main(int argc, char** argv)
             if(overturn == 1) { // respawn
                 cnt_respawn++;
                 if (cnt_respawn == 1) { // 0.1s
-                    ROS_ERROR("imergency respawn");
+                    ROS_ERROR("Imergency Respawn !!!");
+                    outfile << "!!! Imergency Respawn !!!\n";  
                     PubZeroTorqueFlag(1);
                 }
                 // else if (cnt_respawn == 10) {
@@ -1375,7 +1379,8 @@ int main(int argc, char** argv)
                     get_s_or_f = 0;
                     overturn = 0;
                     step = 0;
-                    std::cout << "=======================================" << std::endl;  
+                    std::cout << "=======================================" << std::endl;
+                    outfile << "=======================================\n";  
                 }
 
             }
@@ -1385,14 +1390,20 @@ int main(int argc, char** argv)
                     std::cout << "===================" << data_id << "===================" << std::endl;
                     std::cout << "Ready" << std::endl;
                     std::cout << "  > start" << std::endl;
+                    outfile << "===================" << data_id << "===================\n";
+                    outfile << "Ready\n";
+                    outfile << "  > start\n";
                     StartMode();
                 }
                 else if(cnt_ready == 5) {
                     std::cout << "  > publish torque" << std::endl;
+                    outfile << "  > publish torque\n";
+
                     PubZeroTorqueFlag(0);
                 }
                 else if(cnt_ready == 20) { // 
                     std::cout << "  > publish zero torque" << std::endl;
+                    outfile << "  > publish zero torque\n";
                     PubZeroTorqueFlag(1); // torque off
                 }
                 // else if(cnt_ready == 25) { // 2    
@@ -1401,23 +1412,28 @@ int main(int argc, char** argv)
                 // }
                 else if(cnt_ready == 30) { // 2
                     std::cout << "  > initialize imu yaw" << std::endl;
+                    outfile << "  > initialize imu yaw\n";
                     yaw_init = yaw;
                     InitializeYaw();  
                 }
                 else if(cnt_ready == 50) { //
-                    std::cout << "  > crawl"   << std::endl;  
+                    std::cout << "  > crawl"   << std::endl;  \
+                    outfile << "  > crawl\n";
                     CrawlMode();
                 }
                 else if(cnt_ready == 51) { //
                     std::cout << "  > publish torque"   << std::endl;  
+                    outfile << "  > publish torque\n";
                     PubZeroTorqueFlag(0); // torque on
                 }
                 else if(cnt_ready == 60) { // 
                     std::cout << "  > stand"  << std::endl;
+                    outfile << "  > stand\n";
                     StandMode();
                 }
                 else if(cnt_ready == 80 ) { // 
                     std::cout << "  > mpc" << std::endl;
+                    outfile << "  > mpc\n";
                     MPCMode();
                 }
                 else if(cnt_ready == 100) { //
@@ -1496,19 +1512,21 @@ int main(int argc, char** argv)
                     dataset.yaw_init = yaw_init;
                     dataset.yaw_target = yaw_target; 
                     dataset.duration = cnt_duration/10;
-                    ROS_ERROR("%f", dataset.duration);
                     dataset.s_or_f = s_or_f;
 
                     pub_dataset.publish(dataset);
                     
                     if (s_or_f == 1) {
                         std::cout << "  > result: success" << std::endl;
+                        outfile << "  > result: success\n";
                     }
                     else {
                         std::cout << "  > result: failure" << std::endl;
+                        outfile << "  > result: failure\n";
                     }
 
                     std::cout << "  > publish dataset" << std::endl;
+                    outfile << "  > publish dataset\n";
                 }
                 else if (cnt_data > 1) {
                     cnt_respawn++;
@@ -1516,12 +1534,15 @@ int main(int argc, char** argv)
                     if (cnt_respawn == 10) { // 2s
                         std::cout << "Respawn Step" << std::endl;
                         std::cout << "  > crawl" << std::endl;
+                        outfile << "  > Respawn Step\n";
+                        outfile << "  > crawl\n";
                         CrawlMode();
                         PublishZeroVelocity();
                         PublishZeroPath();
                     }
                     else if (cnt_respawn == 30) {
                         std::cout << "  > respawn" << std::endl;
+                        outfile << "  > respawn\n";
                         Respawn();
                     }
                     else if (cnt_respawn == 40) {
@@ -1537,6 +1558,7 @@ int main(int argc, char** argv)
                         overturn = 0;
                         step = 0;
                         std::cout << "=======================================" << std::endl;  
+                        outfile << "=======================================\n";
                     }   
                 }  
             }

@@ -21,6 +21,8 @@
 #include <iostream>
 #include <cmath>
 
+#include <fstream>
+
 int cnt_resetworld = 0;
 int cnt1 = 0;
 double cnt_duration = 0;
@@ -81,13 +83,16 @@ ros::Publisher pub_xvel;
 ros::Publisher pub_vel;
 
 ros::ServiceClient client;
-// ros::ServiceClient resetClient;
-ros::ServiceClient resetClient;
+ros::ServiceClient resetworldClient; // robot model pose reset
+ros::ServiceClient resetsimulationClient; // simulation reset
 
 dataset_collector::dataset dataset;
 grid_map_msgs::GridMap elevation_map_raw_copy;
 grid_map_msgs::GridMap elevation_map_raw;
 std_msgs::Int8 controlinput;
+
+ofstream outfile("/home/son/Desktop/dataset/dataset1/terminal_output.txt");
+
 
 void msgCallbackEstimatedZ(const std_msgs::Float32::ConstPtr& msg) {
     z = msg->data;
@@ -123,8 +128,8 @@ void ROSInit(ros::NodeHandle& _nh)
     pub_vel = _nh.advertise<std_msgs::Float32MultiArray>("/aidin81/vel_target", 100);
 
     client = _nh.serviceClient<std_srvs::Empty>("/aidin81/elevation_mapping/clear_map");
-    resetClient = _nh.serviceClient<std_srvs::Empty>("/gazebo/reset_world");
-    // resetClient = _nh.serviceClient<std_srvs::Empty>("/gazebo/reset_simulation");
+    resetworldClient = _nh.serviceClient<std_srvs::Empty>("/gazebo/reset_world");
+    resetsimulationClient = _nh.serviceClient<std_srvs::Empty>("/gazebo/reset_simulation");
     // ros::ServiceClient resetClient = nh.serviceClient<gazebo_msgs::ResetModel>("/gazebo/reset_model");
 
 }
@@ -343,6 +348,7 @@ void PublishPath(int _cnt_path){
 void print_check(int _cnt, string msg) {
     if (_cnt%10 == 1) {
         std::cout << msg << std::endl;
+        outfile << msg << "\n";
     }
 }
 

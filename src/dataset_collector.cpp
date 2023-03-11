@@ -877,13 +877,15 @@ void msgCallbackDataset(const dataset_collector::dataset& msg) {
     duration = msg.duration;
     s_or_f = msg.s_or_f;
 
-    // ROS_INFO("========================================");
     std::cout << "======================================" << std::endl;
     std::cout << "id: " << id << std::endl;
     std::cout << "global_inital_x: " << global_initial_x << std::endl;
     std::cout << "global_inital_y: " << global_initial_y << std::endl;
     std::cout << "local_target_x: " << local_target_x << std::endl;
-    std::cout << "local_target_y: " << local_target_y << std::endl;  
+    std::cout << "local_target_y: " << local_target_y << std::endl;;
+    std::cout << "yaw_init: " << yaw_init << std::endl;
+    std::cout << "yaw_target: " << yaw_target << std::endl;
+    std::cout << "duration(s): " << duration << std::endl;    
 
     if (s_or_f == 1) {
       std::cout << "result: success" << std::endl;  
