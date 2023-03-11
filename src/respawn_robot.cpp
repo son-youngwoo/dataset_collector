@@ -1348,6 +1348,19 @@ int main(int argc, char** argv)
             }
         }
         if (step == 0) { // preparing ...
+
+         cnt0++;
+            if(cnt0 == 1) {
+                cnt_resetsimulation++;
+                a[cnt_resetsimulation] = overturn;
+                if (a[0] == 1 && a[1] == 1 && a[2] == 1 && a[3] == 1 && a[4] == 1)
+                {
+                    std_srvs::Empty resetSrv;
+                    resetsimulationClient.call(resetSrv);
+                    cnt_resetsimulation = 0;
+                }
+            }
+
             if(overturn == 1) { // respawn
                 cnt_respawn++;
                 if (cnt_respawn == 1) { // 0.1s
