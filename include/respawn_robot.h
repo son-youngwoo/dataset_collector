@@ -22,7 +22,15 @@
 #include <cmath>
 
 #include <fstream>
+#include <Eigen/Dense>
 
+
+
+using namespace std;
+using namespace Eigen;
+
+int cnt = 0;
+int cnt_resetsim = 0;
 int cnt_resetworld = 0;
 int cnt1 = 0;
 double cnt_duration = 0;
@@ -32,6 +40,7 @@ bool overturn = 0;
 double x = 0;
 double y = 0;
 double z = 0;
+double z_world = 0;
 double roll = 0;
 double pitch = 0;
 double yaw = 0;
@@ -67,13 +76,28 @@ double xvel_target = 0;
 double min_radius = 0.8;
 double max_radius = 1.0;
 
+double world_x_tar = 0.0;
+double world_y_tar = 0.0;
+double trans_x_tar = 0.0;
+double trans_y_tar = 0.0;
+double global_x_tar = 0.0;
+double global_y_tar = 0.0;
+
+double rand_x_init = 0;
+double rand_y_init = 0;
+
+
+
+Matrix<double, 12, 1> JointAngle = MatrixXd::Zero(12, 1);
+
+
 void Reset();
 
-using namespace std;
 
 ros::Subscriber sub_bodypose;
 ros::Subscriber sub_elevationmap;
 ros::Subscriber sub_estimatedz;
+ros::Subscriber sub_joint_angle;
 
 ros::Publisher pub_path;
 ros::Publisher pub_zerotorqueflag;
@@ -81,6 +105,9 @@ ros::Publisher pub_controlinput;
 ros::Publisher pub_dataset;
 ros::Publisher pub_xvel;
 ros::Publisher pub_vel;
+ros::Publisher pub_resetcontactflag;
+ros::Publisher pub_randxy;
+ros::Publisher pub_stateflag;
 
 ros::ServiceClient client;
 ros::ServiceClient resetworldClient; // robot model pose reset
@@ -92,7 +119,7 @@ grid_map_msgs::GridMap elevation_map_raw;
 std_msgs::Int8 controlinput;
 
 ofstream outfile("/home/son/Desktop/dataset/dataset1/terminal_output.txt");
-
+ofstream outfile2("/home/son/joint_angle_correct.txt");
 
 void msgCallbackEstimatedZ(const std_msgs::Float32::ConstPtr& msg) {
     z = msg->data;
@@ -103,7 +130,7 @@ void msgCallbackBodyPose(const std_msgs::Float32MultiArray::ConstPtr& msg)
 {
     x = msg->data[0];
     y = msg->data[1];
-    // z = msg->data[2];
+    z_world = msg->data[2];
     roll = msg->data[3];
     pitch = msg->data[4];
     yaw = msg->data[5];
@@ -114,11 +141,21 @@ void msgCallbackElevationMap(const grid_map_msgs::GridMap& msg)
     elevation_map_raw_copy = msg;
 }
 
+
+void msgCallbackJointPos_sim(const std_msgs::Float32MultiArray::ConstPtr& msgJoint)
+{
+	for (int i = 0; i < 12; i++){
+		JointAngle[i] = msgJoint->data[i];
+	}
+}
+
 void ROSInit(ros::NodeHandle& _nh)
 {
     sub_bodypose = _nh.subscribe("/aidin81/BodyPose_sim", 10, msgCallbackBodyPose);
     sub_elevationmap = _nh.subscribe("/aidin81/elevation_mapping/elevation_map_raw", 10, msgCallbackElevationMap);
     sub_estimatedz = _nh.subscribe("/aidin81/estimatedz", 10, msgCallbackEstimatedZ);
+    sub_joint_angle = _nh.subscribe("/aidin81/JointPos_sim", 1, msgCallbackJointPos_sim); //for gazebo
+
 
     pub_path = _nh.advertise<nav_msgs::Path>("/aidin81/Path", 100);
     pub_zerotorqueflag = _nh.advertise<std_msgs::Bool>("/aidin81/ZeroTorqueFlag", 100);
@@ -126,6 +163,9 @@ void ROSInit(ros::NodeHandle& _nh)
     pub_dataset = _nh.advertise<dataset_collector::dataset>("/aidin81/dataset", 100);
     pub_xvel = _nh.advertise<std_msgs::Float32>("/aidin81/xvel_target", 100);
     pub_vel = _nh.advertise<std_msgs::Float32MultiArray>("/aidin81/vel_target", 100);
+    pub_randxy = _nh.advertise<std_msgs::Float32MultiArray>("/aidin81/randxy", 100);
+    pub_resetcontactflag = _nh.advertise<std_msgs::Bool>("/aidin81/ResetContactFlag", 100);
+    pub_stateflag = _nh.advertise<std_msgs::Bool>("/aidin81/StateFlag", 100);
 
     client = _nh.serviceClient<std_srvs::Empty>("/aidin81/elevation_mapping/clear_map");
     resetworldClient = _nh.serviceClient<std_srvs::Empty>("/gazebo/reset_world");
@@ -134,6 +174,18 @@ void ROSInit(ros::NodeHandle& _nh)
 
 }
 
+
+void PubResetContactFlag(bool _resetcontactflag){
+    std_msgs::Bool resetcontactflag;
+    resetcontactflag.data = _resetcontactflag;
+    pub_resetcontactflag.publish(resetcontactflag);
+}
+
+void PubStateFlag(bool _stateflag){
+    std_msgs::Bool stateflag;
+    stateflag.data = _stateflag;
+    pub_stateflag.publish(stateflag);
+}
 
 void PubZeroTorqueFlag(bool _zerotorqueflag){
     std_msgs::Bool zerotorqueflag;
@@ -193,9 +245,9 @@ void PublishZeroVelocity() {
     pub_xvel.publish(xvel_target);
 }
 
-void PublishVelocity() {
+void PublishVelocity(double _xvel) {
     std_msgs::Float32 xvel_target;
-    xvel_target.data = 0.3;
+    xvel_target.data = _xvel;
     pub_xvel.publish(xvel_target);
 }
 
@@ -231,28 +283,60 @@ void PublishZeroPath() {
 void Respawn() {
     //std::cout << "respawn ..." << std::endl;        
 
-    // create a random number generator engine
-    std::random_device rd_init;
-    std::mt19937 gen_init(rd_init());
+    // // create a random number generator engine
+    // std::random_device rd_init;
+    // std::mt19937 gen_init(rd_init());
 
-    // create a distribution that generates random double numbers in [0.0, 1.0)
-    std::uniform_real_distribution<double> dis_init(-5.0, 5.0);
+    // // create a distribution that generates random double numbers in [0.0, 1.0)
+    // std::uniform_real_distribution<double> dis_init(-17.0, 17.0);
 
-    double rand_x_init = dis_init(gen_init);
-    double rand_y_init = dis_init(gen_init);
+    // rand_x_init = -8;//dis_init(gen_init);
+    // rand_y_init = 12;//dis_init(gen_init);
+    
+    // ROS_ERROR("rand_x_init: %f", rand_x_init);
 
-    // tf2::Quaternion q1;
-    // q1.setRPY(0, 0, 1.57);
+    // if(((-9.0 < rand_x_init) && (rand_x_init <= 0.0)) && ((8.0 < rand_y_init) && (rand_y_init < 17.0))) {  
+    //     ROS_ERROR("hererher");
+    //     std::random_device rd_init2;
+    //     std::mt19937 gen_init2(rd_init2());
+        
+    //     std::uniform_real_distribution<double> dis_init2(-17.0, 17.0);
+
+    //     rand_x_init = dis_init2(gen_init2);
+    //     rand_y_init = dis_init2(gen_init2);
+    // }
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dis_init(-16.5, 16.5);
+
+
+    do {
+        rand_x_init = dis_init(gen);
+        // ROS_ERROR("rand_x_init: %f", rand_x_init);
+    } while (rand_x_init >= -9.0 && rand_x_init <= 0.0);
+
+    do {
+        rand_y_init = dis_init(gen);
+        // ROS_ERROR("rand_y_init: %f", rand_y_init);
+    } while (rand_y_init >= 8.0 && rand_y_init <= 16.5);
+
+    tf2::Quaternion q1;
+    q1.setRPY(0, 0, 1.57);
 
     gazebo_msgs::ModelState modelState;
     modelState.model_name = "aidin81";  // Replace with your robot's name
     modelState.pose.position.x = rand_x_init;   // Replace with your robot's starting position
     modelState.pose.position.y = rand_y_init;
-    modelState.pose.position.z = 1.1;
+    modelState.pose.position.z = 1.5;
     modelState.pose.orientation.x = 0;  // Replace with your robot's starting orientation
     modelState.pose.orientation.y = 0;
     modelState.pose.orientation.z = 0;
     modelState.pose.orientation.w = 1;
+    // modelState.pose.orientation.x = q1.x();  // Replace with your robot's starting orientation
+    // modelState.pose.orientation.y = q1.y();
+    // modelState.pose.orientation.z = q1.z();
+    // modelState.pose.orientation.w = q1.w();
     ros::NodeHandle nh;
     ros::ServiceClient client = nh.serviceClient<gazebo_msgs::SetModelState>("/gazebo/set_model_state");
     gazebo_msgs::SetModelState srv;
@@ -266,6 +350,11 @@ void Respawn() {
     {
         ROS_ERROR("Failed to call service /gazebo/set_model_state");
     }
+
+    std_msgs::Float32MultiArray randxy;
+    randxy.data.push_back(rand_x_init);
+    randxy.data.push_back(rand_y_init);
+    pub_randxy.publish(randxy);
 }
 
 void PublishPath(int _cnt_path){
@@ -288,7 +377,6 @@ void PublishPath(int _cnt_path){
         double angle = dis_angle(gen);
         double radius = dis_radius(gen);
         
-        // Calculate the x and y coordinates
         rand_x_tar = x_init + radius * std::cos(angle); // world base
         rand_y_tar = y_init + radius * std::sin(angle); // world base
 
@@ -298,12 +386,39 @@ void PublishPath(int _cnt_path){
         // yaw_target = atan2(rand_y_tar - y, rand_x_tar - x); // theta based world frame = angle 
         yaw_target = atan2(pos_y, pos_x); // theta based world frame = angle + yaw_init
 
+        // world_x_tar = radius * std::cos(angle);
+        // world_y_tar = radius * std::sin(angle);
+
+        // trans_x_tar = world_x_tar + x_init;
+        // trans_y_tar = world_y_tar + y_init;
+
+        // global_x_tar = cos(-yaw_init)*trans_x_tar - sin(-yaw_init)*trans_y_tar;
+        // global_y_tar = sin(-yaw_init)*trans_x_tar + cos(-yaw_init)*trans_y_tar;
+
+        // yaw_target = atan2(global_y_tar, global_x_tar);
+
         yaw_target_deg = abs(yaw_target/M_PI*180);
 
+        // num_div = yaw_target_deg / 90; // 이렇게 주니까 로봇이 이상하네..?
         num_div = yaw_target_deg / 4;
-        
         yaw_target_dis = yaw_target / num_div;
 
+        if(std::isnan(yaw_target_dis) != 0) {
+            yaw_target_dis = 0;
+            ROS_ERROR("yaw_target_dis is Nan!!!!");
+        }
+
+        std::cout << "  > world_x_tar: " << world_x_tar << " / world_y_tar: " << world_y_tar << std::endl;
+        outfile << "  > world_x_tar: " << world_x_tar << " / world_y_tar: " << world_y_tar << "\n";
+
+        std::cout << "  > trans_x_tar: " << trans_x_tar << " / trans_y_tar: " << trans_y_tar << std::endl;
+        outfile << "  > trans_x_tar: " << trans_x_tar << " / trans_y_tar: " << trans_y_tar << "\n";
+
+        std::cout << "  > global_x_tar: " << global_x_tar << " / global_y_tar: " << global_y_tar << std::endl;
+        outfile << "  > global_x_tar: " << global_x_tar << " / global_y_tar: " << global_y_tar << "\n";
+
+        std::cout << "  > yaw_target: " << yaw_target << std::endl;
+        outfile << "  > yaw_target: " << yaw_target << "\n";
     }
 
     if(_cnt_path < num_div + 1) {

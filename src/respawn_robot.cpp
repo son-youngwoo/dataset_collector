@@ -1311,6 +1311,632 @@
 //     return 0;
 // }
 
+// best
+// #include "respawn_robot.h"
+
+// int main(int argc, char** argv)
+// {
+//     ros::init(argc, argv, "respawn_robot");
+
+//     ros::NodeHandle nh;
+
+//     ROSInit(nh);
+
+//     ros::Rate rate(10); 
+    
+//     while(ros::ok()) {
+
+//         if(cnt_resetsim == 5) {
+//             // PubStateFlag(0);
+//             std_srvs::Empty resetSrv;
+//             resetsimulationClient.call(resetSrv);
+//             // resetworldClient.call(resetSrv);
+            
+//             ROS_ERROR("!!! Reset Simulation !!!");
+//             outfile << "!!! Reset Simulation !!!\n";
+
+//             cnt_resetsim = 0;
+//             cnt_ready = 0;
+//             cnt_s_or_f = 0;
+//             cnt_path = 0;
+//             cnt_vel = 0;
+//             cnt_data = 0;
+//             cnt_respawn = 0;
+//             cnt_duration = 0;
+//             get_s_or_f = 0;
+//             overturn = 0;
+//             cnt1 = 0;
+//             step = 2;
+//             std::cout << "=======================================" << std::endl;
+//             outfile << "=======================================\n";  
+//         }
+
+//         if(abs(roll) > roll_limit || abs(pitch) > pitch_limit || z_world < -5) { 
+//             overturn = 1;
+//         }
+
+//         if (step == 2) {
+//             cnt1++;
+//             // if(cnt1 == 15) {
+//             //     PubStateFlag(1);
+//             // }
+//             if(cnt1 == 20) {
+//                 std::cout << "First Ready" << std::endl;
+//                 std::cout << "  > initialize imu yaw && encoder" << std::endl;
+//                 outfile << "First Ready\n";
+//                 outfile << "  > initialize imu yaw && encoder\n";
+//                 InitializeSensor();
+//             }
+//             else if(cnt1 == 80) { // 2
+//                 std::cout << "  > initialize imu yaw" << std::endl;
+//                 outfile << "  > initialize imu yaw\n";
+//                 InitializeYaw();  
+//             }
+//             else if(cnt1 == 100) {
+//                 step = 0;
+//             }
+//         }
+//         else if (step == 0) { // preparing ...
+//             if(overturn == 1) { // Imergency Respawn
+//                 cnt_respawn++;
+//                 if (cnt_respawn == 1) { // 0.1s
+//                     ROS_ERROR("Imergency Respawn !!!");
+//                     outfile << "!!! Imergency Respawn !!!\n";  
+//                     PubZeroTorqueFlag(1);
+
+//                     cnt_resetsim = cnt_resetsim + 1;
+//                     ROS_ERROR("%d", cnt_resetsim);
+//                 }
+//                 else if (cnt_respawn == 20) { // 2s
+//                     CrawlMode();
+//                 }
+//                 else if (cnt_respawn == 21) { // 2s
+//                     PubZeroTorqueFlag(0);
+//                 }
+//                 else if (cnt_respawn == 30) { // 2s
+//                     // PubStateFlag(0);
+//                     Respawn();
+//                 }
+//                 else if (cnt_respawn == 50) { // 4s
+//                     cnt_ready = 0;
+//                     cnt_s_or_f = 0;
+//                     cnt_path = 0;
+//                     cnt_vel = 0;
+//                     cnt_data = 0;
+//                     cnt_respawn = 0;
+//                     cnt_duration = 0;
+//                     get_s_or_f = 0;
+//                     overturn = 0;
+//                     step = 0;
+//                     std::cout << "=======================================" << std::endl;
+//                     outfile << "=======================================\n";
+//                     std::cout << "  > respawn x: " << rand_x_init << " / respawn y: " << rand_y_init << std::endl;
+//                     outfile << "  > respawn x: " << rand_x_init << " / respawn y: " << rand_y_init << "\n";
+//                 }
+
+//             }
+//             else if (overturn == 0) {
+//                 cnt_ready++;
+//                 if(cnt_ready == 1) {
+//                     std::cout << "===================" << data_id << "===================" << std::endl;
+//                     std::cout << "Ready" << std::endl;
+//                     std::cout << "  > start" << std::endl;
+//                     outfile << "===================" << data_id << "===================\n";
+//                     outfile << "Ready\n";
+//                     outfile << "  > start\n";
+//                     StartMode();
+//                     // PubResetContactFlag(1);
+//                 }
+//                 else if(cnt_ready == 2) {
+//                     // PubResetContactFlag(0);  
+//                 }
+//                 else if(cnt_ready == 5) {
+//                     std::cout << "  > publish torque" << std::endl;
+//                     outfile << "  > publish torque\n";
+
+//                     PubZeroTorqueFlag(0);
+//                 }
+//                 else if(cnt_ready == 20) { // 
+//                     std::cout << "  > publish zero torque" << std::endl;
+//                     outfile << "  > publish zero torque\n";
+//                     // PubStateFlag(1);
+//                     PubZeroTorqueFlag(1); // torque off
+//                 }
+//                 // else if(cnt_ready == 25) { // 2    
+//                 //     std::cout << "  > initialize imu roll, pitch && encoder" << std::endl;
+//                 //     InitializeSensor();  
+//                 // }
+//                 else if(cnt_ready == 30) { // 2
+//                     std::cout << "  > initialize imu yaw" << std::endl;
+//                     outfile << "  > initialize imu yaw\n";
+                    
+//                     yaw_init = yaw;
+//                     std::cout << "  > yaw_init: " << yaw_init << std::endl;
+//                     outfile << "  > yaw_init: " << yaw_init << "\n";
+                    
+//                     InitializeYaw();
+//                 }
+//                 else if(cnt_ready == 50) { //
+//                     std::cout << "  > crawl"   << std::endl;  \
+//                     outfile << "  > crawl\n";
+//                     CrawlMode();
+//                 }
+//                 else if(cnt_ready == 51) { //
+//                     std::cout << "  > publish torque"   << std::endl;  
+//                     outfile << "  > publish torque\n";
+//                     PubZeroTorqueFlag(0); // torque on
+//                 }
+//                 else if(cnt_ready == 60) { // 
+//                     std::cout << "  > stand"  << std::endl;
+//                     outfile << "  > stand\n";
+//                     StandMode();
+//                 }
+//                 else if(cnt_ready == 79) {
+//                     if(z < 0.5) {
+//                         overturn = 1;
+//                     } 
+//                 }
+//                 else if(cnt_ready == 80 ) { // 
+//                     std::cout << "  > mpc" << std::endl;
+//                     outfile << "  > mpc\n";
+//                     MPCMode();
+//                 }
+//                 else if(cnt_ready == 100) { //
+//                     ResetElevationMap(); 
+//                 }
+//                 else if(cnt_ready == 105) { // 
+//                     std::cout << "Go" << std::endl;
+//                     elevation_map_raw = elevation_map_raw_copy;
+//                     step = 1;
+//                 }
+//             }
+
+//         }
+        
+//         else if(step == 1) {
+//             if (get_s_or_f == 0) {
+                
+//                 print_check(cnt_s_or_f, "  > moving ...");
+
+//                 cnt_duration++;
+//                 cnt_path++;
+//                 PublishPath(cnt_path);
+                
+//                 if(abs(yaw_target - _yaw_target) < 0.01) {
+//                     cnt_vel++;
+//                     if (cnt_vel == 20) {
+//                         PublishVelocity();
+//                     }
+//                 }
+
+//                 cnt_s_or_f++;
+
+//                 d = sqrt((rand_x_tar - x)*(rand_x_tar - x) + (rand_y_tar - y)*(rand_y_tar - y));
+//                 R_success = 0.30;
+
+//                 if ( d < R_success) // arrive
+//                 {   
+//                     if (overturn == 1 || z < 0.3) { // arrive -> fail
+//                         get_s_or_f = 1;
+//                         s_or_f = 0;
+//                     }
+//                     else { // arrive -> success  
+//                         get_s_or_f = 1;
+//                         s_or_f = 1;
+//                     }
+
+//                 }
+//                 else { //not arrive
+//                     if (overturn == 1) { // not arrive -> fail
+//                         get_s_or_f = 1;
+//                         s_or_f = 0;
+//                     }
+//                     else if(cnt_s_or_f == 150) { // not arrive -> fail
+//                         get_s_or_f = 1;
+//                         s_or_f = 0;  
+//                     }
+//                     else { // not arrive -> wait
+//                         get_s_or_f = 0;        
+//                     }
+//                 }
+//             }
+
+//             else if (get_s_or_f == 1) {
+//                 cnt_data++;
+
+//                 if (cnt_data == 1) {
+//                     dataset.id = data_id; // dataset id add
+//                     dataset.elevation_map_raw = elevation_map_raw;
+//                     dataset.global_initial_x = x_init; // world base
+//                     dataset.global_initial_y = y_init; // world base
+//                     dataset.local_target_x = rand_x_tar - x_init; // robot base
+//                     dataset.local_target_y = rand_y_tar - y_init; // robot base
+//                     dataset.yaw_init = yaw_init;
+//                     dataset.yaw_target = yaw_target; 
+//                     dataset.duration = cnt_duration/10;
+//                     dataset.s_or_f = s_or_f;
+
+//                     pub_dataset.publish(dataset);
+                    
+//                     if (s_or_f == 1) {
+//                         std::cout << "  > duration: " << dataset.duration << std::endl;
+//                         outfile << "  > duration: " << dataset.duration << "\n";
+//                         std::cout << "  > result: success" << std::endl;
+//                         outfile << "  > result: success\n";
+//                     }
+//                     else {
+//                         std::cout << "  > duration: " << dataset.duration << std::endl;
+//                         outfile << "  > duration: " << dataset.duration << "\n";
+//                         std::cout << "  > result: failure" << std::endl;
+//                         outfile << "  > result: failure\n";
+//                     }
+
+//                 }
+//                 else if (cnt_data > 1) {
+//                     cnt_respawn++;
+
+//                     if (cnt_respawn == 10) { // 2s
+//                         std::cout << "Respawn Step" << std::endl;
+//                         std::cout << "  > crawl" << std::endl;
+//                         outfile << "  > Respawn Step\n";
+//                         outfile << "  > crawl\n";
+//                         CrawlMode();
+//                         PublishZeroVelocity();
+//                         PublishZeroPath();
+//                     }
+//                     else if (cnt_respawn == 30) {
+//                         std::cout << "  > respawn" << std::endl;
+//                         outfile << "  > respawn\n";
+//                         // PubStateFlag(0);
+//                         Respawn();
+//                     }
+//                     else if (cnt_respawn == 40) {
+//                         data_id++;
+//                         cnt_ready = 0;
+//                         cnt_s_or_f = 0;
+//                         cnt_path = 0;
+//                         cnt_vel = 0;
+//                         cnt_data = 0;
+//                         cnt_respawn = 0;
+//                         cnt_duration = 0;
+//                         get_s_or_f = 0;
+//                         overturn = 0;
+//                         step = 0;
+//                         cnt_resetsim = 0;
+//                         std::cout << "=======================================" << std::endl;  
+//                         outfile << "=======================================\n";
+//                         std::cout << "  > respawn x: " << rand_x_init << " / respawn y: " << rand_y_init << std::endl;
+//                         outfile << "  > respawn x: " << rand_x_init << " / respawn y: " << rand_y_init << "\n";
+//                         ROS_ERROR("%d", cnt_resetsim);
+//                     }   
+//                 }  
+//             }
+//         }
+
+
+//         ros::spinOnce();
+//         rate.sleep();
+//     }
+//     return 0;
+// }
+
+
+// 1시간 30분 문제 x 보행 제거
+// #include "respawn_robot.h"
+
+// int main(int argc, char** argv)
+// {
+//     ros::init(argc, argv, "respawn_robot");
+
+//     ros::NodeHandle nh;
+
+//     ROSInit(nh);
+
+//     ros::Rate rate(10); 
+    
+//     while(ros::ok()) {
+
+//         if(cnt_resetsim == 5) {
+//             // PubStateFlag(0);
+//             std_srvs::Empty resetSrv;
+//             resetsimulationClient.call(resetSrv);
+//             // resetworldClient.call(resetSrv);
+            
+//             ROS_ERROR("!!! Reset Simulation !!!");
+//             outfile << "!!! Reset Simulation !!!\n";
+
+//             cnt_resetsim = 0;
+//             cnt_ready = 0;
+//             cnt_s_or_f = 0;
+//             cnt_path = 0;
+//             cnt_vel = 0;
+//             cnt_data = 0;
+//             cnt_respawn = 0;
+//             cnt_duration = 0;
+//             get_s_or_f = 0;
+//             overturn = 0;
+//             cnt1 = 0;
+//             step = 2;
+//             std::cout << "=======================================" << std::endl;
+//             outfile << "=======================================\n";  
+//         }
+
+//         if(abs(roll) > roll_limit || abs(pitch) > pitch_limit || z_world < -5) { 
+//             overturn = 1;
+//         }
+
+//         if (step == 2) {
+//             cnt1++;
+//             // if(cnt1 == 15) {
+//             //     PubStateFlag(1);
+//             // }
+//             if(cnt1 == 20) {
+//                 std::cout << "First Ready" << std::endl;
+//                 std::cout << "  > initialize imu yaw && encoder" << std::endl;
+//                 outfile << "First Ready\n";
+//                 outfile << "  > initialize imu yaw && encoder\n";
+//                 InitializeSensor();
+//             }
+//             else if(cnt1 == 80) { // 2
+//                 std::cout << "  > initialize imu yaw" << std::endl;
+//                 outfile << "  > initialize imu yaw\n";
+//                 InitializeYaw();  
+//             }
+//             else if(cnt1 == 100) {
+//                 step = 0;
+//             }
+//         }
+//         else if (step == 0) { // preparing ...
+//             if(overturn == 1) { // Imergency Respawn
+//                 cnt_respawn++;
+//                 if (cnt_respawn == 1) { // 0.1s
+//                     ROS_ERROR("Imergency Respawn !!!");
+//                     outfile << "!!! Imergency Respawn !!!\n";  
+//                     // PubZeroTorqueFlag(1);
+
+//                     cnt_resetsim = cnt_resetsim + 1;
+//                     ROS_ERROR("%d", cnt_resetsim);
+//                 }
+//                 else if (cnt_respawn == 20) { // 2s
+//                     CrawlMode();
+//                 }
+//                 else if (cnt_respawn == 21) { // 2s
+//                     // PubZeroTorqueFlag(0);
+//                 }
+//                 else if (cnt_respawn == 40) { // 2s
+//                     StartMode();
+//                 }
+//                 else if (cnt_respawn == 60) { // 2s
+//                     // PubStateFlag(0);
+//                     Respawn();
+//                 }
+//                 else if (cnt_respawn == 80) { // 4s
+//                     cnt_ready = 0;
+//                     cnt_s_or_f = 0;
+//                     cnt_path = 0;
+//                     cnt_vel = 0;
+//                     cnt_data = 0;
+//                     cnt_respawn = 0;
+//                     cnt_duration = 0;
+//                     get_s_or_f = 0;
+//                     overturn = 0;
+//                     step = 0;
+//                     std::cout << "=======================================" << std::endl;
+//                     outfile << "=======================================\n";
+//                     std::cout << "  > respawn x: " << rand_x_init << " / respawn y: " << rand_y_init << std::endl;
+//                     outfile << "  > respawn x: " << rand_x_init << " / respawn y: " << rand_y_init << "\n";
+//                 }
+
+//             }
+//             else if (overturn == 0) {
+//                 cnt_ready++;
+//                 if(cnt_ready == 1) {
+//                     std::cout << "===================" << data_id << "===================" << std::endl;
+//                     std::cout << "Ready" << std::endl;
+//                     std::cout << "  > start" << std::endl;
+//                     outfile << "===================" << data_id << "===================\n";
+//                     outfile << "Ready\n";
+//                     outfile << "  > start\n";
+//                     // StartMode();
+//                     // PubResetContactFlag(1);
+//                 }
+//                 else if(cnt_ready == 2) {
+//                     // PubResetContactFlag(0);  
+//                 }
+//                 else if(cnt_ready == 5) {
+//                     std::cout << "  > publish torque" << std::endl;
+//                     outfile << "  > publish torque\n";
+
+//                     // PubZeroTorqueFlag(0);
+//                 }
+//                 else if(cnt_ready == 20) { // 
+//                     std::cout << "  > publish zero torque" << std::endl;
+//                     outfile << "  > publish zero torque\n";
+//                     // PubStateFlag(1);
+//                     // PubZeroTorqueFlag(1); // torque off
+//                 }
+//                 // else if(cnt_ready == 25) { // 2    
+//                 //     std::cout << "  > initialize imu roll, pitch && encoder" << std::endl;
+//                 //     InitializeSensor();  
+//                 // }
+//                 else if(cnt_ready == 30) { // 2
+//                     std::cout << "  > initialize imu yaw" << std::endl;
+//                     outfile << "  > initialize imu yaw\n";
+                    
+//                     yaw_init = yaw;
+//                     std::cout << "  > yaw_init: " << yaw_init << std::endl;
+//                     outfile << "  > yaw_init: " << yaw_init << "\n";
+                    
+//                     InitializeYaw();
+//                 }
+//                 else if(cnt_ready == 50) { //
+//                     std::cout << "  > crawl"   << std::endl;  \
+//                     outfile << "  > crawl\n";
+//                     CrawlMode();
+//                 }
+//                 else if(cnt_ready == 51) { //
+//                     std::cout << "  > publish torque"   << std::endl;  
+//                     outfile << "  > publish torque\n";
+//                     // PubZeroTorqueFlag(0); // torque on
+//                 }
+//                 else if(cnt_ready == 60) { // 
+//                     std::cout << "  > stand"  << std::endl;
+//                     outfile << "  > stand\n";
+//                     StandMode();
+//                 }
+//                 else if(cnt_ready == 79) {
+//                     if(z < 0.5) {
+//                         overturn = 1;
+//                     } 
+//                 }
+//                 else if(cnt_ready == 80 ) { // 
+//                     std::cout << "  > mpc" << std::endl;
+//                     outfile << "  > mpc\n";
+//                     MPCMode();
+//                 }
+//                 else if(cnt_ready == 100) { //
+//                     ResetElevationMap(); 
+//                 }
+//                 else if(cnt_ready == 105) { // 
+//                     std::cout << "Go" << std::endl;
+//                     elevation_map_raw = elevation_map_raw_copy;
+//                     step = 1;
+//                 }
+//             }
+
+//         }
+        
+//         else if(step == 1) {
+//             if (get_s_or_f == 0) {
+                
+//                 print_check(cnt_s_or_f, "  > moving ...");
+
+//                 cnt_duration++;
+//                 cnt_path++;
+//                 // PublishPath(cnt_path);
+                
+//                 if(abs(yaw_target - _yaw_target) < 0.01) {
+//                     cnt_vel++;
+//                     if (cnt_vel == 20) {
+//                         // PublishVelocity();
+//                     }
+//                 }
+
+//                 cnt_s_or_f++;
+
+//                 d = sqrt((rand_x_tar - x)*(rand_x_tar - x) + (rand_y_tar - y)*(rand_y_tar - y));
+//                 R_success = 0.30;
+
+//                 if ( d < R_success) // arrive
+//                 {   
+//                     if (overturn == 1 || z < 0.3) { // arrive -> fail
+//                         get_s_or_f = 1;
+//                         s_or_f = 0;
+//                     }
+//                     else { // arrive -> success  
+//                         get_s_or_f = 1;
+//                         s_or_f = 1;
+//                     }
+
+//                 }
+//                 else { //not arrive
+//                     if (overturn == 1) { // not arrive -> fail
+//                         get_s_or_f = 1;
+//                         s_or_f = 0;
+//                     }
+//                     else if(cnt_s_or_f == 50) { // not arrive -> fail
+//                         get_s_or_f = 1;
+//                         s_or_f = 0;  
+//                     }
+//                     else { // not arrive -> wait
+//                         get_s_or_f = 0;        
+//                     }
+//                 }
+//             }
+
+//             else if (get_s_or_f == 1) {
+//                 cnt_data++;
+
+//                 if (cnt_data == 1) {
+//                     dataset.id = data_id; // dataset id add
+//                     dataset.elevation_map_raw = elevation_map_raw;
+//                     dataset.global_initial_x = x_init; // world base
+//                     dataset.global_initial_y = y_init; // world base
+//                     dataset.local_target_x = rand_x_tar - x_init; // robot base
+//                     dataset.local_target_y = rand_y_tar - y_init; // robot base
+//                     dataset.yaw_init = yaw_init;
+//                     dataset.yaw_target = yaw_target; 
+//                     dataset.duration = cnt_duration/10;
+//                     dataset.s_or_f = s_or_f;
+
+//                     pub_dataset.publish(dataset);
+                    
+//                     if (s_or_f == 1) {
+//                         std::cout << "  > duration: " << dataset.duration << std::endl;
+//                         outfile << "  > duration: " << dataset.duration << "\n";
+//                         std::cout << "  > result: success" << std::endl;
+//                         outfile << "  > result: success\n";
+//                     }
+//                     else {
+//                         std::cout << "  > duration: " << dataset.duration << std::endl;
+//                         outfile << "  > duration: " << dataset.duration << "\n";
+//                         std::cout << "  > result: failure" << std::endl;
+//                         outfile << "  > result: failure\n";
+//                     }
+
+//                 }
+//                 else if (cnt_data > 1) {
+//                     cnt_respawn++;
+
+//                     if (cnt_respawn == 10) { // 2s
+//                         std::cout << "Respawn Step" << std::endl;
+//                         std::cout << "  > crawl" << std::endl;
+//                         outfile << "  > Respawn Step\n";
+//                         outfile << "  > crawl\n";
+//                         CrawlMode();
+//                         PublishZeroVelocity();
+//                         PublishZeroPath();
+//                     }
+
+//                     if (cnt_respawn == 30) { // 2s
+//                         StartMode();
+//                     }
+//                     else if (cnt_respawn == 50) {
+//                         std::cout << "  > respawn" << std::endl;
+//                         outfile << "  > respawn\n";
+//                         // PubStateFlag(0);
+//                         Respawn();
+//                     }
+//                     else if (cnt_respawn == 70) {
+//                         data_id++;
+//                         cnt_ready = 0;
+//                         cnt_s_or_f = 0;
+//                         cnt_path = 0;
+//                         cnt_vel = 0;
+//                         cnt_data = 0;
+//                         cnt_respawn = 0;
+//                         cnt_duration = 0;
+//                         get_s_or_f = 0;
+//                         overturn = 0;
+//                         step = 0;
+//                         cnt_resetsim = 0;
+//                         std::cout << "=======================================" << std::endl;  
+//                         outfile << "=======================================\n";
+//                         std::cout << "  > respawn x: " << rand_x_init << " / respawn y: " << rand_y_init << std::endl;
+//                         outfile << "  > respawn x: " << rand_x_init << " / respawn y: " << rand_y_init << "\n";
+//                         ROS_ERROR("%d", cnt_resetsim);
+//                     }   
+//                 }  
+//             }
+//         }
+
+
+//         ros::spinOnce();
+//         rate.sleep();
+//     }
+//     return 0;
+// }
+
 #include "respawn_robot.h"
 
 int main(int argc, char** argv)
@@ -1325,12 +1951,40 @@ int main(int argc, char** argv)
     
     while(ros::ok()) {
 
-        if(abs(roll) > roll_limit || abs(pitch) > pitch_limit) { 
+        if(cnt_resetsim == 5) {
+            // PubStateFlag(0);
+            std_srvs::Empty resetSrv;
+            resetsimulationClient.call(resetSrv);
+            // resetworldClient.call(resetSrv);
+            
+            ROS_ERROR("!!! Reset Simulation !!!");
+            outfile << "!!! Reset Simulation !!!\n";
+
+            cnt_resetsim = 0;
+            cnt_ready = 0;
+            cnt_s_or_f = 0;
+            cnt_path = 0;
+            cnt_vel = 0;
+            cnt_data = 0;
+            cnt_respawn = 0;
+            cnt_duration = 0;
+            get_s_or_f = 0;
+            overturn = 0;
+            cnt1 = 0;
+            step = 2;
+            std::cout << "=======================================" << std::endl;
+            outfile << "=======================================\n";  
+        }
+
+        if(abs(roll) > roll_limit || abs(pitch) > pitch_limit || z_world < -5) { 
             overturn = 1;
         }
 
         if (step == 2) {
             cnt1++;
+            // if(cnt1 == 15) {
+            //     PubStateFlag(1);
+            // }
             if(cnt1 == 20) {
                 std::cout << "First Ready" << std::endl;
                 std::cout << "  > initialize imu yaw && encoder" << std::endl;
@@ -1347,41 +2001,31 @@ int main(int argc, char** argv)
                 step = 0;
             }
         }
-        if (step == 0) { // preparing ...
-
-         cnt0++;
-            if(cnt0 == 1) {
-                cnt_resetsimulation++;
-                a[cnt_resetsimulation] = overturn;
-                if (a[0] == 1 && a[1] == 1 && a[2] == 1 && a[3] == 1 && a[4] == 1)
-                {
-                    std_srvs::Empty resetSrv;
-                    resetsimulationClient.call(resetSrv);
-                    cnt_resetsimulation = 0;
-                }
-            }
-
-            if(overturn == 1) { // respawn
+        else if (step == 0) { // preparing ...
+            if(overturn == 1) { // Imergency Respawn
                 cnt_respawn++;
                 if (cnt_respawn == 1) { // 0.1s
                     ROS_ERROR("Imergency Respawn !!!");
                     outfile << "!!! Imergency Respawn !!!\n";  
                     PubZeroTorqueFlag(1);
+
+                    cnt_resetsim = cnt_resetsim + 1;
+                    ROS_ERROR("%d", cnt_resetsim);
                 }
-                // else if (cnt_respawn == 10) {
-                //     std_srvs::Empty resetSrv;
-                //     resetClient.call(resetSrv);
-                // }
                 else if (cnt_respawn == 20) { // 2s
                     CrawlMode();
                 }
                 else if (cnt_respawn == 21) { // 2s
                     PubZeroTorqueFlag(0);
                 }
-                else if (cnt_respawn == 30) { // 2s
+                else if (cnt_respawn == 40) { // 2s
+                    StartMode();
+                }
+                else if (cnt_respawn == 60) { // 2s
+                    // PubStateFlag(0);
                     Respawn();
                 }
-                else if (cnt_respawn == 50) { // 4s
+                else if (cnt_respawn == 80) { // 4s
                     cnt_ready = 0;
                     cnt_s_or_f = 0;
                     cnt_path = 0;
@@ -1393,12 +2037,17 @@ int main(int argc, char** argv)
                     overturn = 0;
                     step = 0;
                     std::cout << "=======================================" << std::endl;
-                    outfile << "=======================================\n";  
+                    outfile << "=======================================\n";
+                    std::cout << "  > respawn x: " << rand_x_init << " / respawn y: " << rand_y_init << std::endl;
+                    outfile << "  > respawn x: " << rand_x_init << " / respawn y: " << rand_y_init << "\n";
                 }
 
             }
             else if (overturn == 0) {
                 cnt_ready++;
+                if(cnt_ready > 1) {
+                    outfile2 << JointAngle[0] << ", " << JointAngle[1] << ", "  << JointAngle[2] << ", "  << JointAngle[3] << ", "  << JointAngle[4] << ", "  << JointAngle[5] << ", "  << JointAngle[6] << ", "  << JointAngle[7] << ", "  << JointAngle[8] << ", "  << JointAngle[9] << ", "  << JointAngle[10] << ", "  << JointAngle[11] << ", " <<"\n";
+                }
                 if(cnt_ready == 1) {
                     std::cout << "===================" << data_id << "===================" << std::endl;
                     std::cout << "Ready" << std::endl;
@@ -1406,7 +2055,14 @@ int main(int argc, char** argv)
                     outfile << "===================" << data_id << "===================\n";
                     outfile << "Ready\n";
                     outfile << "  > start\n";
+                    outfile2 << "id: " << data_id << "\n";
+                    outfile2 << roll << ", " << pitch << ", " << yaw << "\n";  
+		        
                     StartMode();
+                    // PubResetContactFlag(1);
+                }
+                else if(cnt_ready == 2) {
+                    // PubResetContactFlag(0);  
                 }
                 else if(cnt_ready == 5) {
                     std::cout << "  > publish torque" << std::endl;
@@ -1417,6 +2073,7 @@ int main(int argc, char** argv)
                 else if(cnt_ready == 20) { // 
                     std::cout << "  > publish zero torque" << std::endl;
                     outfile << "  > publish zero torque\n";
+                    // PubStateFlag(1);
                     PubZeroTorqueFlag(1); // torque off
                 }
                 // else if(cnt_ready == 25) { // 2    
@@ -1426,11 +2083,15 @@ int main(int argc, char** argv)
                 else if(cnt_ready == 30) { // 2
                     std::cout << "  > initialize imu yaw" << std::endl;
                     outfile << "  > initialize imu yaw\n";
+                    
                     yaw_init = yaw;
-                    InitializeYaw();  
+                    std::cout << "  > yaw_init: " << yaw_init << std::endl;
+                    outfile << "  > yaw_init: " << yaw_init << "\n";
+                    
+                    InitializeYaw();
                 }
                 else if(cnt_ready == 50) { //
-                    std::cout << "  > crawl"   << std::endl;  \
+                    std::cout << "  > crawl"   << std::endl;
                     outfile << "  > crawl\n";
                     CrawlMode();
                 }
@@ -1444,15 +2105,17 @@ int main(int argc, char** argv)
                     outfile << "  > stand\n";
                     StandMode();
                 }
+                else if(cnt_ready == 79) {
+                    if(z < 0.5) {
+                        overturn = 1;
+                    } 
+                }
                 else if(cnt_ready == 80 ) { // 
                     std::cout << "  > mpc" << std::endl;
                     outfile << "  > mpc\n";
                     MPCMode();
                 }
                 else if(cnt_ready == 100) { //
-                    if(z < 0.4) {
-                        overturn = 1;
-                    } 
                     ResetElevationMap(); 
                 }
                 else if(cnt_ready == 105) { // 
@@ -1476,14 +2139,14 @@ int main(int argc, char** argv)
                 if(abs(yaw_target - _yaw_target) < 0.01) {
                     cnt_vel++;
                     if (cnt_vel == 20) {
-                        PublishVelocity();
+                        PublishVelocity(0.3);
                     }
                 }
 
                 cnt_s_or_f++;
 
                 d = sqrt((rand_x_tar - x)*(rand_x_tar - x) + (rand_y_tar - y)*(rand_y_tar - y));
-                R_success = 0.20;
+                R_success = 0.30;
 
                 if ( d < R_success) // arrive
                 {   
@@ -1530,35 +2193,44 @@ int main(int argc, char** argv)
                     pub_dataset.publish(dataset);
                     
                     if (s_or_f == 1) {
+                        std::cout << "  > duration: " << dataset.duration << std::endl;
+                        outfile << "  > duration: " << dataset.duration << "\n";
                         std::cout << "  > result: success" << std::endl;
                         outfile << "  > result: success\n";
                     }
                     else {
+                        std::cout << "  > duration: " << dataset.duration << std::endl;
+                        outfile << "  > duration: " << dataset.duration << "\n";
                         std::cout << "  > result: failure" << std::endl;
                         outfile << "  > result: failure\n";
                     }
 
-                    std::cout << "  > publish dataset" << std::endl;
-                    outfile << "  > publish dataset\n";
                 }
                 else if (cnt_data > 1) {
                     cnt_respawn++;
-
                     if (cnt_respawn == 10) { // 2s
                         std::cout << "Respawn Step" << std::endl;
                         std::cout << "  > crawl" << std::endl;
                         outfile << "  > Respawn Step\n";
                         outfile << "  > crawl\n";
+                        PublishVelocity(0);
+                    }
+                    else if (cnt_respawn == 30) { // 2s
                         CrawlMode();
                         PublishZeroVelocity();
                         PublishZeroPath();
                     }
-                    else if (cnt_respawn == 30) {
+
+                    if (cnt_respawn == 50) { // 2s
+                        // StartMode();
+                    }
+                    else if (cnt_respawn == 70) {
                         std::cout << "  > respawn" << std::endl;
                         outfile << "  > respawn\n";
+                        // PubStateFlag(0);
                         Respawn();
                     }
-                    else if (cnt_respawn == 40) {
+                    else if (cnt_respawn == 90) {
                         data_id++;
                         cnt_ready = 0;
                         cnt_s_or_f = 0;
@@ -1570,8 +2242,15 @@ int main(int argc, char** argv)
                         get_s_or_f = 0;
                         overturn = 0;
                         step = 0;
+                        cnt_resetsim = 0;
                         std::cout << "=======================================" << std::endl;  
                         outfile << "=======================================\n";
+                        std::cout << "  > respawn x: " << rand_x_init << " / respawn y: " << rand_y_init << std::endl;
+                        outfile << "  > respawn x: " << rand_x_init << " / respawn y: " << rand_y_init << "\n";
+                        ROS_ERROR("%d", cnt_resetsim);
+                        outfile2 << "=========================================================================================================================="<< "\n";  
+                        cnt = 0;
+
                     }   
                 }  
             }

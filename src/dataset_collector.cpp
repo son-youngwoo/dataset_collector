@@ -824,7 +824,7 @@ void gridtoimage(const grid_map_msgs::GridMap& msg, int num) //son
   grid_map::GridMap map;
   cv_bridge::CvImage image;
   grid_map::GridMapRosConverter::fromMessage(msg, map, {"elevation"});
-  grid_map::GridMapRosConverter::toCvImage(map,"elevation_inpainted", sensor_msgs::image_encodings::MONO8,-0.5,1.5, image);
+  grid_map::GridMapRosConverter::toCvImage(map,"elevation_inpainted", sensor_msgs::image_encodings::MONO8,-1.0,0, image);
   bool success = cv::imwrite(filePath_.c_str(),image.image, {cv::IMWRITE_PNG_STRATEGY_DEFAULT});
   std::cout << filePath_ << std::endl;
   sensor_msgs::Image ros_image;
