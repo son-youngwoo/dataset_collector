@@ -93,6 +93,9 @@ double global_y_tar = 0.0;
 double rand_x_init = 0;
 double rand_y_init = 0;
 
+double global_x = 0;
+double global_y = 0;
+
 
 
 Matrix<double, 12, 1> JointAngle = MatrixXd::Zero(12, 1);
@@ -342,14 +345,14 @@ void Respawn() {
     modelState.pose.position.x = rand_x_init;   // Replace with your robot's starting position
     modelState.pose.position.y = rand_y_init;
     modelState.pose.position.z = 1.5;
-    modelState.pose.orientation.x = 0;  // Replace with your robot's starting orientation
-    modelState.pose.orientation.y = 0;
-    modelState.pose.orientation.z = 0;
-    modelState.pose.orientation.w = 1;
-    // modelState.pose.orientation.x = q_yaw.x();  // Replace with your robot's starting orientation
-    // modelState.pose.orientation.y = q_yaw.y();
-    // modelState.pose.orientation.z = q_yaw.z();
-    // modelState.pose.orientation.w = q_yaw.w();
+    // modelState.pose.orientation.x = 0;  // Replace with your robot's starting orientation
+    // modelState.pose.orientation.y = 0;
+    // modelState.pose.orientation.z = 0;
+    // modelState.pose.orientation.w = 1;
+    modelState.pose.orientation.x = q_yaw.x();  // Replace with your robot's starting orientation
+    modelState.pose.orientation.y = q_yaw.y();
+    modelState.pose.orientation.z = q_yaw.z();
+    modelState.pose.orientation.w = q_yaw.w();
     ros::NodeHandle nh;
     ros::ServiceClient client = nh.serviceClient<gazebo_msgs::SetModelState>("/gazebo/set_model_state");
     gazebo_msgs::SetModelState srv;
@@ -363,11 +366,6 @@ void Respawn() {
     {
         ROS_ERROR("Failed to call service /gazebo/set_model_state");
     }
-
-    std_msgs::Float32MultiArray randxy;
-    randxy.data.push_back(rand_x_init);
-    randxy.data.push_back(rand_y_init);
-    pub_randxy.publish(randxy);
 }
 
 void PublishPath(int _cnt_path){
@@ -376,6 +374,11 @@ void PublishPath(int _cnt_path){
 
         x_init = x;
         y_init = y;
+
+        std_msgs::Float32MultiArray init_position;
+        init_position.data.push_back(x_init);
+        init_position.data.push_back(y_init);
+        pub_randxy.publish(init_position);
         
         // std::cout << "global_initial_x: " << x_init << std::endl;        // test
         // std::cout << "global_initial_y: " << y_init << std::endl;        // test
@@ -390,17 +393,17 @@ void PublishPath(int _cnt_path){
         double angle = dis_angle(gen);
         double radius = dis_radius(gen);
 ///////////////////////
-        rand_x_tar = x_init + radius * std::cos(angle); // world base
-        rand_y_tar = y_init + radius * std::sin(angle); // world base
+        // rand_x_tar = x_init + radius * std::cos(angle); // world base
+        // rand_y_tar = y_init + radius * std::sin(angle); // world base
 
-        pos_x = cos(-yaw_init)*(rand_x_tar - x)-sin(-yaw_init)*(rand_y_tar - y);
-        pos_y = sin(-yaw_init)*(rand_x_tar - x)+cos(-yaw_init)*(rand_y_tar - y);
+        // pos_x = cos(-yaw_init)*(rand_x_tar - x)-sin(-yaw_init)*(rand_y_tar - y);
+        // pos_y = sin(-yaw_init)*(rand_x_tar - x)+cos(-yaw_init)*(rand_y_tar - y);
 
-        // yaw_target = atan2(rand_y_tar - y, rand_x_tar - x); // theta based world frame = angle 
-        yaw_target = atan2(pos_y, pos_x); // theta based world frame = angle + yaw_init
+        // // yaw_target = atan2(rand_y_tar - y, rand_x_tar - x); // theta based world frame = angle 
+        // yaw_target = atan2(pos_y, pos_x); // theta based world frame = angle + yaw_init
 ///////////////////////
-        // world_x_tar = radius * std::cos(angle);
-        // world_y_tar = radius * std::sin(angle);
+        world_x_tar = radius * std::cos(angle);
+        world_y_tar = radius * std::sin(angle);
 
         // trans_x_tar = world_x_tar + x_init;
         // trans_y_tar = world_y_tar + y_init;
@@ -409,17 +412,18 @@ void PublishPath(int _cnt_path){
         // global_y_tar = sin(-yaw_init)*trans_x_tar + cos(-yaw_init)*trans_y_tar;
 
         // yaw_target = atan2(global_y_tar, global_x_tar);
+
+
+        global_x_tar = cos(-yaw_init)*world_x_tar - sin(-yaw_init)*world_y_tar;
+        global_y_tar = sin(-yaw_init)*world_x_tar + cos(-yaw_init)*world_y_tar;
+
+        yaw_target = atan2(global_y_tar, global_x_tar);
 ////////////////////////
         yaw_target_deg = abs(yaw_target/M_PI*180);
 
         // num_div = yaw_target_deg / 90; // 이렇게 주니까 로봇이 이상하네..?
         num_div = yaw_target_deg / 4;
         yaw_target_dis = yaw_target / num_div;
-
-        if(std::isnan(yaw_target_dis) != 0) {
-            yaw_target_dis = 0;
-            ROS_ERROR("yaw_target_dis is Nan!!!!");
-        }
 
         std::cout << "  > world_x_tar: " << world_x_tar << " / world_y_tar: " << world_y_tar << std::endl;
         outfile << "  > world_x_tar: " << world_x_tar << " / world_y_tar: " << world_y_tar << "\n";
@@ -433,6 +437,9 @@ void PublishPath(int _cnt_path){
         std::cout << "  > yaw_target: " << yaw_target << std::endl;
         outfile << "  > yaw_target: " << yaw_target << "\n";
     }
+
+    global_x = cos(-yaw_init)*(x - x_init) - sin(-yaw_init)*(y - y_init);
+    global_y = sin(-yaw_init)*(x - x_init) + cos(-yaw_init)*(y - y_init);
 
     if(_cnt_path < num_div + 1) {
         _yaw_target = yaw_target_dis*_cnt_path;
@@ -450,23 +457,23 @@ void PublishPath(int _cnt_path){
     nav_msgs::Path path;
 
     path.header.stamp = ros::Time::now();
-    path.header.frame_id = "world";
+    path.header.frame_id = "aidin81/global";
     path.poses.resize(2);  // allocate memory for the poses array
-    path.poses[0].header.frame_id = "world";
+    path.poses[0].header.frame_id = "aidin81/global";
     path.poses[0].header.stamp = ros::Time::now();
-    path.poses[0].pose.position.x = x_init;
-    path.poses[0].pose.position.y = y_init;
-    path.poses[0].pose.orientation.x = q_init.x();
-    path.poses[0].pose.orientation.y = q_init.y();
-    path.poses[0].pose.orientation.z = q_init.z();
-    path.poses[0].pose.orientation.w = q_init.w();
+    path.poses[0].pose.position.x = 0;
+    path.poses[0].pose.position.y = 0;
+    path.poses[0].pose.orientation.x = 0;
+    path.poses[0].pose.orientation.y = 0;
+    path.poses[0].pose.orientation.z = 0;
+    path.poses[0].pose.orientation.w = 1;
 
-    path.poses[1].header.frame_id = "world";
+    path.poses[1].header.frame_id = "aidin81/global";
     path.poses[1].header.stamp = ros::Time::now();
-    path.poses[1].pose.position.x = rand_x_tar;
-    path.poses[1].pose.position.y = rand_y_tar;
-    // path.poses[1].pose.position.x = global_x_tar;
-    // path.poses[1].pose.position.y = global_y_tar;
+    // path.poses[1].pose.position.x = rand_x_tar;
+    // path.poses[1].pose.position.y = rand_y_tar;
+    path.poses[1].pose.position.x = global_x_tar;
+    path.poses[1].pose.position.y = global_y_tar;
     path.poses[1].pose.orientation.x = q.x();
     path.poses[1].pose.orientation.y = q.y();
     path.poses[1].pose.orientation.z = q.z();

@@ -2148,7 +2148,7 @@ int main(int argc, char** argv)
 
                 cnt_s_or_f++;
 
-                d = sqrt((rand_x_tar - x)*(rand_x_tar - x) + (rand_y_tar - y)*(rand_y_tar - y));
+                d = sqrt((global_x_tar - global_x)*(global_x_tar - global_x) + (global_y_tar - global_y)*(global_y_tar - global_y));
                 R_success = 0.30;
 
                 if ( d < R_success) // arrive
