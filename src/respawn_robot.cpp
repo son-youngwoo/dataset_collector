@@ -2116,6 +2116,9 @@ int main(int argc, char** argv)
                     MPCMode();
                 }
                 else if(cnt_ready == 100) { //
+                    std_msgs::Float32 first_z;
+                    first_z.data = z_world;
+                    pub_firstz.publish(first_z);
                     ResetElevationMap(); 
                 }
                 else if(cnt_ready == 105) { // 

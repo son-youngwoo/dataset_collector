@@ -24,7 +24,13 @@
 #include <fstream>
 #include <Eigen/Dense>
 
+#ifndef pi
+#define pi 3.14159265359
+#endif
 
+#ifndef DEG2RAD
+#define DEG2RAD (pi/180.0)
+#endif
 
 using namespace std;
 using namespace Eigen;
@@ -68,6 +74,7 @@ int num_div = 0;
 double yaw_target_deg = 0;
 double pos_x = 0;
 double pos_y = 0;
+double rand_yaw_init = 0;
 
 double d = 0;
 double R_success = 0;
@@ -108,6 +115,7 @@ ros::Publisher pub_vel;
 ros::Publisher pub_resetcontactflag;
 ros::Publisher pub_randxy;
 ros::Publisher pub_stateflag;
+ros::Publisher pub_firstz;
 
 ros::ServiceClient client;
 ros::ServiceClient resetworldClient; // robot model pose reset
@@ -166,6 +174,8 @@ void ROSInit(ros::NodeHandle& _nh)
     pub_randxy = _nh.advertise<std_msgs::Float32MultiArray>("/aidin81/randxy", 100);
     pub_resetcontactflag = _nh.advertise<std_msgs::Bool>("/aidin81/ResetContactFlag", 100);
     pub_stateflag = _nh.advertise<std_msgs::Bool>("/aidin81/StateFlag", 100);
+    pub_firstz = _nh.advertise<std_msgs::Float32>("/aidin81/first_z_world", 100);
+
 
     client = _nh.serviceClient<std_srvs::Empty>("/aidin81/elevation_mapping/clear_map");
     resetworldClient = _nh.serviceClient<std_srvs::Empty>("/gazebo/reset_world");
@@ -321,8 +331,11 @@ void Respawn() {
         // ROS_ERROR("rand_y_init: %f", rand_y_init);
     } while (rand_y_init >= 8.0 && rand_y_init <= 16.5);
 
-    tf2::Quaternion q1;
-    q1.setRPY(0, 0, 1.57);
+    std::uniform_real_distribution<double> yaw_init(-179, 179);
+    rand_yaw_init = yaw_init(gen)*DEG2RAD;
+
+    tf2::Quaternion q_yaw;
+    q_yaw.setRPY(0, 0, rand_yaw_init);
 
     gazebo_msgs::ModelState modelState;
     modelState.model_name = "aidin81";  // Replace with your robot's name
@@ -333,10 +346,10 @@ void Respawn() {
     modelState.pose.orientation.y = 0;
     modelState.pose.orientation.z = 0;
     modelState.pose.orientation.w = 1;
-    // modelState.pose.orientation.x = q1.x();  // Replace with your robot's starting orientation
-    // modelState.pose.orientation.y = q1.y();
-    // modelState.pose.orientation.z = q1.z();
-    // modelState.pose.orientation.w = q1.w();
+    // modelState.pose.orientation.x = q_yaw.x();  // Replace with your robot's starting orientation
+    // modelState.pose.orientation.y = q_yaw.y();
+    // modelState.pose.orientation.z = q_yaw.z();
+    // modelState.pose.orientation.w = q_yaw.w();
     ros::NodeHandle nh;
     ros::ServiceClient client = nh.serviceClient<gazebo_msgs::SetModelState>("/gazebo/set_model_state");
     gazebo_msgs::SetModelState srv;
@@ -376,7 +389,7 @@ void PublishPath(int _cnt_path){
         // Generate a random angle and distance
         double angle = dis_angle(gen);
         double radius = dis_radius(gen);
-        
+///////////////////////
         rand_x_tar = x_init + radius * std::cos(angle); // world base
         rand_y_tar = y_init + radius * std::sin(angle); // world base
 
@@ -385,7 +398,7 @@ void PublishPath(int _cnt_path){
 
         // yaw_target = atan2(rand_y_tar - y, rand_x_tar - x); // theta based world frame = angle 
         yaw_target = atan2(pos_y, pos_x); // theta based world frame = angle + yaw_init
-
+///////////////////////
         // world_x_tar = radius * std::cos(angle);
         // world_y_tar = radius * std::sin(angle);
 
@@ -396,7 +409,7 @@ void PublishPath(int _cnt_path){
         // global_y_tar = sin(-yaw_init)*trans_x_tar + cos(-yaw_init)*trans_y_tar;
 
         // yaw_target = atan2(global_y_tar, global_x_tar);
-
+////////////////////////
         yaw_target_deg = abs(yaw_target/M_PI*180);
 
         // num_div = yaw_target_deg / 90; // 이렇게 주니까 로봇이 이상하네..?
@@ -452,6 +465,8 @@ void PublishPath(int _cnt_path){
     path.poses[1].header.stamp = ros::Time::now();
     path.poses[1].pose.position.x = rand_x_tar;
     path.poses[1].pose.position.y = rand_y_tar;
+    // path.poses[1].pose.position.x = global_x_tar;
+    // path.poses[1].pose.position.y = global_y_tar;
     path.poses[1].pose.orientation.x = q.x();
     path.poses[1].pose.orientation.y = q.y();
     path.poses[1].pose.orientation.z = q.z();
