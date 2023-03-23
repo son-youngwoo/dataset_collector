@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /GridMap1
       Splitter Ratio: 0.5
     Tree Height: 719
   - Class: rviz/Selection
@@ -72,7 +73,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Min Color: 0; 0; 0
@@ -87,7 +88,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -100,7 +101,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Min Color: 0; 0; 0
@@ -115,7 +116,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -128,7 +129,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Min Color: 0; 0; 0
@@ -143,7 +144,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -156,7 +157,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Min Color: 0; 0; 0
@@ -171,7 +172,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -199,6 +200,27 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Class: grid_map_rviz_plugin/GridMap
+      Color: 200; 200; 200
+      Color Layer: elevation_inpainted
+      Color Transformer: GridMapLayer
+      Enabled: true
+      Height Layer: elevation_inpainted
+      Height Transformer: GridMapLayer
+      History Length: 1
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 10
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: GridMap
+      Show Grid Lines: true
+      Topic: /elevation_mapping/elevation_map_raw
+      Unreliable: false
+      Use Rainbow: true
       Value: true
   Enabled: true
   Global Options:
@@ -228,7 +250,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 40.11652755737305
+      Distance: 41.466758728027344
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -236,17 +258,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0.15331393480300903
-        Y: 5.061405181884766
-        Z: -1.737693190574646
+        X: -3.507885694503784
+        Y: 3.0142784118652344
+        Z: -0.7254723906517029
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.659797191619873
+      Pitch: 0.8397969603538513
       Target Frame: <Fixed Frame>
-      Yaw: 4.878574848175049
+      Yaw: 5.00358247756958
     Saved: ~
 Window Geometry:
   Displays:

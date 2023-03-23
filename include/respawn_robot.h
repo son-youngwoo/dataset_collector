@@ -70,6 +70,7 @@ double rand_x_tar = 0;
 double rand_y_tar = 0;
 double x_init = 0;
 double y_init = 0;
+double z_init = 0;
 int num_div = 0;
 double yaw_target_deg = 0;
 double pos_x = 0;
@@ -141,7 +142,7 @@ void msgCallbackBodyPose(const std_msgs::Float32MultiArray::ConstPtr& msg)
 {
     x = msg->data[0];
     y = msg->data[1];
-    z_world = msg->data[2];
+    z_world = msg->data[2] - 0.04; // 0.43만큼 +되어 있음.
     roll = msg->data[3];
     pitch = msg->data[4];
     yaw = msg->data[5];
@@ -375,6 +376,7 @@ void PublishPath(int _cnt_path){
 
         x_init = x;
         y_init = y;
+        z_init = z_world;
 
         std_msgs::Float32MultiArray init_position;
         init_position.data.push_back(x_init);

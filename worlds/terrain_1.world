@@ -9,7 +9,7 @@
     <include>
       <name>terrain_1</name>
       <uri>model://terrain_1</uri>
-      <pose>0 0 0 0 0 0</pose>
+      <pose>0 0 0.5 0 0 0</pose>
     </include>
 
     <!-- <include>
@@ -594,7 +594,7 @@
       </sensor>
       <sensor name='camera1_depth' type='depth'>
         <camera name="camera1">
-          <horizontal_fov>1</horizontal_fov>
+          <horizontal_fov>1.5</horizontal_fov>
           <image>
             <width>480</width> 
             <height>480</height> 
@@ -669,7 +669,7 @@
       </sensor>
       <sensor name='camera2_depth' type='depth'>
         <camera name="camera2">
-          <horizontal_fov>1</horizontal_fov>
+          <horizontal_fov>1.5</horizontal_fov>
           <image>
             <width>480</width> 
             <height>480</height> 
@@ -744,7 +744,7 @@
       </sensor>
       <sensor name='camera3_depth' type='depth'>
         <camera name="camera3">
-          <horizontal_fov>1</horizontal_fov>
+          <horizontal_fov>1.5</horizontal_fov>
           <image>
             <width>480</width> 
             <height>480</height> 
@@ -820,7 +820,7 @@
       </sensor>
       <sensor name='camera4_depth' type='depth'>
         <camera name="camera4">
-          <horizontal_fov>1</horizontal_fov>
+          <horizontal_fov>1.5</horizontal_fov>
           <image>
             <width>480</width> 
             <height>480</height> 
