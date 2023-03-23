@@ -1,0 +1,78 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <model name="terrain_5">
+    <pose>0 0 0 0 0 0</pose>
+    <static>true</static>
+    <link name="body">
+      <visual name="visual">
+        <geometry>
+          <mesh><uri>model://terrain_5/media/terrain_5.dae</uri></mesh>
+        </geometry>
+	<!--material>
+          <script>
+            <uri>model://terrain_5/media/scripts</uri>
+            <uri>model://terrain_5/media/Textures</uri>
+            <name>RepeatedGrass/Diffuse</name>
+          </script>
+        </material-->
+      </visual>
+      <collision name="collision">
+        <geometry>
+          <mesh><uri>model://terrain_5/media/terrain_5.dae</uri></mesh>
+        </geometry>
+        <surface>
+	      <bounce>
+		<restitution_coefficient>0</restitution_coefficient>
+		<threshold>1e+06</threshold>
+	      </bounce>
+	      <contact>
+		<collide_without_contact>0</collide_without_contact>
+		<collide_without_contact_bitmask>1</collide_without_contact_bitmask>
+		<collide_bitmask>1</collide_bitmask>
+		<ode>
+		  <soft_cfm>0</soft_cfm>
+		  <soft_erp>0.2</soft_erp>
+		  <kp>1e+6</kp>
+		  <kd>1e+3</kd>
+		  <max_vel>0</max_vel>
+		  <min_depth>0.001</min_depth>
+		</ode>
+		<bullet>
+		  <split_impulse>1</split_impulse>
+		  <split_impulse_penetration_threshold>-0.01</split_impulse_penetration_threshold>
+		  <soft_cfm>0</soft_cfm>
+		  <soft_erp>0.2</soft_erp>
+		  <kp>1e+6</kp>
+		  <kd>1e+3</kd>
+		</bullet>
+	      </contact>
+	      <soft_contact>
+		<dart>
+		  <bone_attachment>10</bone_attachment>
+		  <stiffness>10</stiffness>
+		  <damping>1</damping>
+		</dart>
+	      </soft_contact>
+	      <friction>
+		<ode>
+		  <mu>1+e100</mu>
+		  <mu2>10000</mu2>
+		  <fdir1>0 0 1</fdir1>
+		  <slip1>0</slip1>
+		  <slip2>0</slip2>
+		</ode>
+		<torsional>
+		  <coefficient>1</coefficient>
+		  <patch_radius>0</patch_radius>
+		  <surface_radius>0</surface_radius>
+		  <use_patch_radius>1</use_patch_radius>
+		  <ode>
+		    <slip>0</slip>
+		  </ode>
+		</torsional>
+	      </friction>
+	    </surface>
+      </collision>
+    </link>
+  </model>
+</sdf>

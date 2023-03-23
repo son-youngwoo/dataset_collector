@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+
+<sdf version='1.6'>
+  <world name='default'>
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <include>
+      <name>terrain_3</name>
+      <uri>model://terrain_3</uri>
+      <pose>0 0 -0.3 0 0 0</pose>
+    </include>
+
+      <physics type="ode" default="true">
+        <max_step_size>0.001</max_step_size>
+        <real_time_factor>1000</real_time_factor>
+        <max_contacts>1</max_contacts>
+        <ode>
+          <solver>
+            <type>quick</type>
+            <iters>10</iters>
+          </solver>
+        </ode>
+      </physics>
+
+  </world>
+</sdf>

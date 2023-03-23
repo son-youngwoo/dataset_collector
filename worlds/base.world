@@ -1,0 +1,199 @@
+<?xml version="1.0" ?>
+  <sdf version="1.4">
+    <world name="default">
+      
+      <include>
+        <uri>model://sun</uri>
+      </include>
+      
+      <model name='my_ground_plane'>
+        <static>true</static>
+        <pose>0 0 0 0 0 0</pose>
+        <link name='plane'>
+          <pose>0 0 0 0 0 0</pose>
+          <visual name='plane'>
+            <pose>0 0 0 0 0 0</pose>
+              <geometry>
+                <plane>
+                  <normal>0 0 1</normal>
+                  <size>100 100</size>
+                </plane>
+              </geometry>
+          </visual>
+          <collision name='plane'>
+            <pose>0 0 0 0 0 0</pose>
+            <geometry>
+              <plane>
+                <normal>0 0 1</normal>
+                <size>100 100</size>
+              </plane>
+            </geometry>
+            <surface>
+              <bounce>
+                <restitution_coefficient>0</restitution_coefficient>
+                <threshold>1e+06</threshold>
+              </bounce>
+              <contact>
+                <collide_without_contact>0</collide_without_contact>
+                <collide_without_contact_bitmask>1</collide_without_contact_bitmask>
+                <collide_bitmask>1</collide_bitmask>
+                <ode>
+                  <soft_cfm>0</soft_cfm>
+                  <soft_erp>0.2</soft_erp>
+                  <kp>1e+6</kp>
+                  <kd>1e+3</kd>
+                  <max_vel>0</max_vel>
+                  <min_depth>0.001</min_depth>
+                </ode>
+                <bullet>
+                  <split_impulse>1</split_impulse>
+                  <split_impulse_penetration_threshold>-0.01</split_impulse_penetration_threshold>
+                  <soft_cfm>0</soft_cfm>
+                  <soft_erp>0.2</soft_erp>
+                  <kp>1e+6</kp>
+                  <kd>1e+3</kd>
+                </bullet>
+              </contact>
+              <soft_contact>
+                <dart>
+                  <bone_attachment>10</bone_attachment>
+                  <stiffness>10</stiffness>
+                  <damping>1</damping>
+                </dart>
+              </soft_contact>
+              <friction>
+                <ode>
+                  <mu>1+e100</mu>
+                  <mu2>10000</mu2>
+                  <fdir1>0 0 1</fdir1>
+                  <slip1>0</slip1>
+                  <slip2>0</slip2>
+                </ode>
+                <torsional>
+                  <coefficient>1</coefficient>
+                  <patch_radius>0</patch_radius>
+                  <surface_radius>0</surface_radius>
+                  <use_patch_radius>1</use_patch_radius>
+                  <ode>
+                    <slip>0</slip>
+                  </ode>
+                </torsional>
+              </friction>
+            </surface>
+          </collision>
+        </link>
+      </model>
+
+      <physics type="ode" default="true">
+        <max_step_size>0.001</max_step_size>
+        <real_time_factor>1000</real_time_factor>
+        <max_contacts>1</max_contacts>
+        <ode>
+          <solver>
+            <type>quick</type>
+            <iters>10</iters>
+          </solver>
+        </ode>
+      </physics>
+    <model name='aidinvi'>
+      <static>true</static>
+      <pose>0 0 3.5 0 0 0</pose>
+      <link name="neck">
+        <gravity>0</gravity>
+        <pose>0 0 0 0 0 0</pose>
+        <collision name="neck_col">
+          <pose>0 0 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.001 0.001 0.001</size>
+            </box>
+          </geometry>
+          <surface>
+            <contact>
+              <collide_bitmask>1</collide_bitmask>
+            </contact>
+          </surface>
+        </collision>
+        <visual name="neck_visual">
+          <pose>0 0 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.003 0.01 0.003</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.1 0.1 0.1 1</ambient>
+            <diffuse>0.1 0.1 0.2 1</diffuse>
+            <specular>0 0 0 0</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+      
+      <link name="camera_link">
+        <gravity>0</gravity>
+        <pose>0 0 0 0 1.570796327 1.570796327</pose>
+        <visual name="camera_link_visual">
+          <pose>0 0 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.01 0.1 0.02</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.1 0.1 0.1 1</ambient>
+            <diffuse>0.1 0.1 0.2 1</diffuse>
+            <specular>0 0 0 0</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+        <sensor name='aidinvi_depth' type='depth'>
+          <camera name="head">
+            <horizontal_fov>1.5</horizontal_fov>
+            <image>
+              <width>240</width>
+              <height>320</height>
+            </image>
+            <clip>
+              <near>0.02</near>
+              <far>30</far>
+            </clip>
+          </camera>
+          <always_on>1</always_on>
+          <update_rate>30.0</update_rate>
+          <visualize>1</visualize>
+          <plugin name="camera_controller" filename="libgazebo_ros_openni_kinect.so">
+            <robotNamespace></robotNamespace>
+            <baseline>0.2</baseline>
+            <alwaysOn>true</alwaysOn>
+            <updateRate>30.0</updateRate>
+            <cameraName>aidinvi_camera_ir</cameraName>
+            <pointCloudTopicName>aidinvi_camera/depth/points</pointCloudTopicName>
+            <frameName>camera_link</frameName>
+            <pointCloudCutoff>0.4</pointCloudCutoff>
+            <pointCloudCutoff>15</pointCloudCutoff>
+            <distortionK1>0.0</distortionK1>
+            <distortionK2>0.0</distortionK2>
+            <distortionK3>0.0</distortionK3>
+            <distortionT1>0.0</distortionT1>
+            <distortionT2>0.0</distortionT2>
+            <CxPrime>0</CxPrime>
+            <Cx>0</Cx>
+            <Cy>0</Cy>
+            <focalLength>0</focalLength>
+            <hackBaseline>0</hackBaseline>
+          </plugin>
+        </sensor>
+      </link>
+      <joint name="camera_joint" type="fixed">
+        <axis>
+          <xyz>0 1 0</xyz>
+        </axis>
+        <pose>0 0 0 0 0 0</pose>
+        <parent>neck</parent>
+        <child>camera_link</child>
+      </joint>
+    </model>
+    </world>
+  
+  </sdf>

@@ -2007,7 +2007,7 @@ int main(int argc, char** argv)
                 if (cnt_respawn == 1) { // 0.1s
                     ROS_ERROR("Imergency Respawn !!!");
                     outfile << "!!! Imergency Respawn !!!\n";  
-                    PubZeroTorqueFlag(1);
+                    // PubZeroTorqueFlag(1);
 
                     cnt_resetsim = cnt_resetsim + 1;
                     ROS_ERROR("%d", cnt_resetsim);
@@ -2074,7 +2074,7 @@ int main(int argc, char** argv)
                     std::cout << "  > publish zero torque" << std::endl;
                     outfile << "  > publish zero torque\n";
                     // PubStateFlag(1);
-                    PubZeroTorqueFlag(1); // torque off
+                    // PubZeroTorqueFlag(1); // torque off
                 }
                 // else if(cnt_ready == 25) { // 2    
                 //     std::cout << "  > initialize imu roll, pitch && encoder" << std::endl;
@@ -2085,6 +2085,7 @@ int main(int argc, char** argv)
                     outfile << "  > initialize imu yaw\n";
                     
                     yaw_init = yaw;
+                    // GetInitialYaw();
                     std::cout << "  > yaw_init: " << yaw_init << std::endl;
                     outfile << "  > yaw_init: " << yaw_init << "\n";
                     
@@ -2103,12 +2104,12 @@ int main(int argc, char** argv)
                 else if(cnt_ready == 60) { // 
                     std::cout << "  > stand"  << std::endl;
                     outfile << "  > stand\n";
-                    StandMode();
+                    // StandMode();
                 }
                 else if(cnt_ready == 79) {
                     if(z < 0.5) {
-                        overturn = 1;
-                    } 
+                        // overturn = 1;
+                    }
                 }
                 else if(cnt_ready == 80 ) { // 
                     std::cout << "  > mpc" << std::endl;
