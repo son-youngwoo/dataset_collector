@@ -2045,23 +2045,19 @@ double cnt = 0;
 using namespace std;
 
 int id;
-float global_initial_x;
-float global_initial_y;
-float local_target_x;
-float local_target_y;
-float yaw_init;
-float yaw_target;
-float duration;
-bool s_or_f;
-double Z_WorldtoLocal = 0;
-
 double world_x_init = 0;
 double world_y_init = 0;
 double world_z_init = 0;
+double global_x_tar = 0;
+double global_y_tar = 0;
+bool isSuccess = 0;
+grid_map_msgs::GridMap elevation_map_realtime;
 
 grid_map::GridMap elevation_map_global;
 
+
 grid_map::GridMap GetLocalMap(double _world_x_init, double _world_y_init, double _world_z_init);
+void GetGlobalMap();
 
 void TargetFoot(const aidin_msgs::four& msg)
 {
@@ -2772,7 +2768,51 @@ void Gridmap2pt(grid_map::GridMap& mapOut, aidin_msgs::pt_array& msg)
     msg.nPoint = nPoint1;
 }
 
-void gridtoimage_pre(const grid_map_msgs::GridMap& msg, int num) //son for comparison with current method
+// void gridtoimage_pre(const grid_map_msgs::GridMap& msg, int num) //son for comparison with current method
+// {
+//   ros::NodeHandle nodeHandle_;
+//   std::string gridMapTopic_;
+//   std::string filePath_;
+
+//   srand((unsigned int)time(NULL));
+
+//   filePath_="/home/son/Desktop/dataset/dataset1/elevation_map_previous/num.png";
+//   filePath_.replace(filePath_.find("num"), 3, std::to_string(num));
+//   // nodeHandle_.param("grid_map_topic", gridMapTopic_, std::string("/submap3"));
+
+//   grid_map::GridMap map;
+//   cv_bridge::CvImage image;
+//   grid_map::GridMapRosConverter::fromMessage(msg, map, {"elevation"});
+//   grid_map::GridMapRosConverter::toCvImage(map,"elevation_inpainted", sensor_msgs::image_encodings::MONO8,-1.0, 0, image);
+//   bool success = cv::imwrite(filePath_.c_str(),image.image, {cv::IMWRITE_PNG_STRATEGY_DEFAULT});
+//   std::cout << filePath_ << std::endl;
+//   sensor_msgs::Image ros_image;
+//   image.toImageMsg(ros_image);
+// }
+
+// void gridtoimage_cur(const grid_map_msgs::GridMap& msg, int num) //son
+// {
+//   ros::NodeHandle nodeHandle_;
+//   std::string gridMapTopic_;
+//   std::string filePath_;
+
+//   srand((unsigned int)time(NULL));
+
+//   filePath_="/home/son/Desktop/dataset/dataset1/elevation_map_current/num.png";
+//   filePath_.replace(filePath_.find("num"), 3, std::to_string(num));
+//   // nodeHandle_.param("grid_map_topic", gridMapTopic_, std::string("/submap3"));
+
+//   grid_map::GridMap map;
+//   cv_bridge::CvImage image;
+//   grid_map::GridMapRosConverter::fromMessage(msg, map, {"elevation"});
+//   grid_map::GridMapRosConverter::toCvImage(map,"elevation_inpainted", sensor_msgs::image_encodings::MONO8,-1.0, 0, image);
+//   bool success = cv::imwrite(filePath_.c_str(),image.image, {cv::IMWRITE_PNG_STRATEGY_DEFAULT});
+//   std::cout << filePath_ << std::endl;
+//   sensor_msgs::Image ros_image;
+//   image.toImageMsg(ros_image);
+// }
+
+void GetGrayImage_realtime(const grid_map_msgs::GridMap& msg, int num) //son for comparison with current method
 {
   ros::NodeHandle nodeHandle_;
   std::string gridMapTopic_;
@@ -2780,7 +2820,7 @@ void gridtoimage_pre(const grid_map_msgs::GridMap& msg, int num) //son for compa
 
   srand((unsigned int)time(NULL));
 
-  filePath_="/home/son/Desktop/dataset/dataset1/elevation_map_previous/num.png";
+  filePath_="/home/son/Desktop/dataset/dataset1/elevation_map_realtime/num.png";
   filePath_.replace(filePath_.find("num"), 3, std::to_string(num));
   // nodeHandle_.param("grid_map_topic", gridMapTopic_, std::string("/submap3"));
 
@@ -2794,7 +2834,7 @@ void gridtoimage_pre(const grid_map_msgs::GridMap& msg, int num) //son for compa
   image.toImageMsg(ros_image);
 }
 
-void gridtoimage_cur(const grid_map_msgs::GridMap& msg, int num) //son
+void GetGrayImage(const grid_map_msgs::GridMap& msg, int num) //son
 {
   ros::NodeHandle nodeHandle_;
   std::string gridMapTopic_;
@@ -2802,7 +2842,7 @@ void gridtoimage_cur(const grid_map_msgs::GridMap& msg, int num) //son
 
   srand((unsigned int)time(NULL));
 
-  filePath_="/home/son/Desktop/dataset/dataset1/elevation_map_current/num.png";
+  filePath_="/home/son/Desktop/dataset/dataset1/elevation_map/num.png";
   filePath_.replace(filePath_.find("num"), 3, std::to_string(num));
   // nodeHandle_.param("grid_map_topic", gridMapTopic_, std::string("/submap3"));
 
@@ -2896,30 +2936,109 @@ void gridtoimage_cur(const grid_map_msgs::GridMap& msg, int num) //son
 //     gridtoimage_cur(elevation_map_local, id); // current method
 // }
 
-// void msgCallbackZ(const std_msgs::Float64MultiArray& msg) {
-//     Z_WorldtoLocal = msg->data[2];
+// void msgCallbackDataset(const dataset_collector::dataset& msg) {
+//     id = msg.id;
+//     world_x_init = msg.world_x_init;
+//     world_y_init = msg.world_y_init;
+//     world_z_init = msg.world_z_init; // add 
+//     Elevation_Map_Copy = msg.elevation_map_raw;
+    
+//     std::cout << "======================================" << std::endl;
+//     std::cout << "id: " << id << std::endl;
+//     std::cout << "world_x: " << world_x_init << std::endl;
+//     std::cout << "world_y: " << world_y_init << std::endl;
+//     std::cout << "world_z: " << world_z_init << std::endl;
+    
+//     grid_map::GridMap _Elevation_Map_Copy;
+
+//     grid_map::GridMapRosConverter::fromMessage(Elevation_Map_Copy, _Elevation_Map_Copy, {"elevation"});
+
+//     for (grid_map::GridMapIterator it(_Elevation_Map_Copy); !it.isPastEnd(); ++it) {
+//     if (_Elevation_Map_Copy.isValid(*it, "elevation_inpainted")) {
+//         _Elevation_Map_Copy.at("elevation_inpainted", *it) -= world_z_init;
+//       }
+//     }
+//     grid_map_msgs::GridMap Elevation_Map_Copy_msg;
+//     grid_map::GridMapRosConverter::toMessage(_Elevation_Map_Copy, Elevation_Map_Copy_msg);
+
+//     grid_map::GridMap elevation_map_local;
+//     elevation_map_local = GetLocalMap(world_x_init, world_y_init, world_z_init); // grid_map::GridMap
+//     grid_map_msgs::GridMap elevation_map_local_msgs;
+//     grid_map::GridMapRosConverter::toMessage(elevation_map_local, elevation_map_local_msgs);
+
+//     gridtoimage_pre(Elevation_Map_Copy_msg, id); // previous method
+//     gridtoimage_cur(elevation_map_local_msgs, id); // current method
 // }
 
+void SaveDataset(int _id, double _global_x_tar, double _global_y_tar, bool _isSuccess) {
+    // create the output file stream
+
+    ofstream file("/home/son/Desktop/dataset/dataset1/dataset.csv", ios::app);
+
+    // check if the file was opened successfully
+    if (!file.is_open()) {
+        cout << "Error opening file!" << endl;
+    }
+
+    // write the header row
+    // file << "id,global_initial_x,global_initial_y,local_target_x,local_target_y,success_or_failure" << endl;
+
+    // write some sample data
+    file << _id << "," << _global_x_tar << "," << _global_y_tar << "," << _isSuccess << endl;
+
+    // close the file
+    file.close();
+
+    cout << "Data saved to file!" << endl;
+}
+
 void msgCallbackDataset(const dataset_collector::dataset& msg) {
-    id = msg.id;
-    world_x_init = msg.world_x_init;
-    world_y_init = msg.world_y_init;
-    world_z_init = msg.world_z_init; // add 
-    Elevation_Map_Copy = msg.elevation_map_raw;
+    id = msg.id; // for dataset
+    world_x_init = msg.world_x_init; // for GetLocalMap
+    world_y_init = msg.world_y_init; // for GetLocalMap
+    world_z_init = msg.world_z_init; // for GetLocalMap
+    global_x_tar = msg.global_x_tar; // for dataset
+    global_y_tar = msg.global_y_tar; // for dataset
+    isSuccess = msg.isSuccess; // for dataset 
+    elevation_map_realtime = msg.elevation_map_realtime;
     
     std::cout << "======================================" << std::endl;
     std::cout << "id: " << id << std::endl;
     std::cout << "world_x: " << world_x_init << std::endl;
     std::cout << "world_y: " << world_y_init << std::endl;
     std::cout << "world_z: " << world_z_init << std::endl;
+    std::cout << "global_x_tar: " << global_x_tar << std::endl;
+    std::cout << "global_y_tar: " << global_y_tar << std::endl;
+    
+    if (isSuccess == true) {
+      std::cout << "result: success" << std::endl;
+    }
+    else {
+      std::cout << "result: failure " << std::endl;
+    }
 
     grid_map::GridMap elevation_map_local;
-    elevation_map_local = GetLocalMap(world_x_init, world_y_init, world_z_init); // grid_map::GridMap
-    grid_map_msgs::GridMap elevation_map_local_msgs;
-    grid_map::GridMapRosConverter::toMessage(elevation_map_local, elevation_map_local_msgs);
+    elevation_map_local = GetLocalMap(world_x_init, world_y_init, world_z_init); // grid_map
+    grid_map_msgs::GridMap elevation_map_local_msg; // grid_map_msgs
+    grid_map::GridMapRosConverter::toMessage(elevation_map_local, elevation_map_local_msg);
 
-    gridtoimage_pre(Elevation_Map_Copy, id); // previous method
-    gridtoimage_cur(elevation_map_local_msgs, id); // current method
+    GetGrayImage(elevation_map_local_msg, id);
+    SaveDataset(id, global_x_tar, global_y_tar, isSuccess);
+
+    // Use if you want compare local map from global map
+    // with local map from realtime sensor data
+    grid_map::GridMap _elevation_map_realtime;
+    grid_map::GridMapRosConverter::fromMessage(elevation_map_realtime, _elevation_map_realtime, {"elevation"});
+
+    for (grid_map::GridMapIterator it(_elevation_map_realtime); !it.isPastEnd(); ++it) {
+    if (_elevation_map_realtime.isValid(*it, "elevation_inpainted")) {
+        _elevation_map_realtime.at("elevation_inpainted", *it) -= world_z_init;
+      }
+    }
+    grid_map_msgs::GridMap elevation_map_realtime_msg;
+    grid_map::GridMapRosConverter::toMessage(_elevation_map_realtime, elevation_map_realtime_msg);
+
+    GetGrayImage_realtime(elevation_map_realtime_msg, id);
 }
 
 void GetGlobalMap() {
@@ -2927,7 +3046,6 @@ void GetGlobalMap() {
   rosbag::Bag bag;
   bag.open("/home/son/Desktop/dataset/dataset1/global_map_1.bag", rosbag::bagmode::Read);
   // bag.open("/home/son/Desktop/dataset/dataset1/global_map_base.bag", rosbag::bagmode::Read);
-
 
   // Create a view for the desired topic
   rosbag::View view(bag, rosbag::TopicQuery("/elevation_mapping/elevation_map_raw"));
@@ -2940,9 +3058,7 @@ void GetGlobalMap() {
     if (grid_map_msg != nullptr)
     {
       // Convert the message to a GridMap object
-      // grid_map::GridMap elevation_map_global;
       grid_map::GridMapRosConverter::fromMessage(*grid_map_msg, elevation_map_global);
-      // gridtoimage_cur(*grid_map_msg, 1);
     }
   }
 
@@ -2950,45 +3066,22 @@ void GetGlobalMap() {
   bag.close();  
 }
 
-grid_map::GridMap GetLocalMap(double _x, double _y, double _z) {
+grid_map::GridMap GetLocalMap(double _world_x_init, double _world_y_init, double _world_z_init) {
 
   // Define submap center and size
-  grid_map::Position submap_center(_x, _y);  // center of submap in map coordinates
-  double submap_size_x = 2.5;  // size of submap in meters
-  double submap_size_y = 2.5;  // size of submap in meters
-  // grid_map::Length submap_size(submap_size_x, submap_size_y);
+  grid_map::Position submap_center(_world_x_init, _world_y_init);  // center of submap in map coordinates
   grid_map::Length submap_size(2.5, 2.5);
-  bool isSuccess;
+  bool _isSuccess = true;
+  
   // Extract submap
   grid_map::GridMap _elevation_map_local;
-  _elevation_map_local = elevation_map_global.getSubmap(submap_center, submap_size, isSuccess);
+  _elevation_map_local = elevation_map_global.getSubmap(submap_center, submap_size, _isSuccess);
 
-  // Add 0.8 to submap data
-  ROS_ERROR("%f", _z);
-  // _elevation_map_local.add("elevation_inpainted", -_z);
-
-  // ofstream file("/home/son/Desktop/dataset/dataset1/dataset.txt", ios::app);
-
-  // for (grid_map::GridMapIterator iterator(_elevation_map_local); !iterator.isPastEnd(); ++iterator) {
-  //       const auto index = *iterator;
-  //       // std::cout << ", "<< _elevation_map_local.at("elevation_inpainted", index);
-  //       file <<  _elevation_map_local.at("elevation_inpainted", index) << " ";
-  //   }
-  //       file <<  "minus z";
   for (grid_map::GridMapIterator it(_elevation_map_local); !it.isPastEnd(); ++it) {
     if (_elevation_map_local.isValid(*it, "elevation_inpainted")) {
-        _elevation_map_local.at("elevation_inpainted", *it) -= _z;
+        _elevation_map_local.at("elevation_inpainted", *it) -= _world_z_init;
     }
   }
-
-  // for (grid_map::GridMapIterator iterator(_elevation_map_local); !iterator.isPastEnd(); ++iterator) {
-  //       const auto index = *iterator;
-  //       std::cout << ", "<< _elevation_map_local.at("elevation_inpainted", index);
-  //       file <<  _elevation_map_local.at("elevation_inpainted", index) << " ";
-  //   }
-  
-  // file.close();
-
 
   return _elevation_map_local;
 }
@@ -2998,29 +3091,14 @@ int main (int argc, char** argv)
   // Initialize ROS
   ros::init (argc, argv, "dataset_collector");
   ros::NodeHandle nh;
-  // ros::Subscriber sub = nh.subscribe("/aidin81/elevation_mapping/elevation_map_raw", 100, subscriberCallback1);
   ros::Subscriber sub_dataset = nh.subscribe("/aidin81/dataset", 100, msgCallbackDataset);
-  // ros::Subscriber sub_z = nh.subscribe("/aidin81/BodyPos_sim", 100, msgCallbackZ);
   
   GetGlobalMap(); // get grid_map::GridMap elevation_map_global
-
-  // grid_map::GridMap elevation_map_local;
-  // elevation_map_local = GetLocalMap(0,0,0); // grid_map::GridMap
-  // grid_map_msgs::GridMap elevation_map_local_msgs;
-  // grid_map::GridMapRosConverter::toMessage(elevation_map_local, elevation_map_local_msgs);
-  // gridtoimage_cur(elevation_map_local_msgs, 1);
-
-
 
   ros::Rate loop_rate(10);
 
   while (ros::ok())
   {
-    // if(mappingstart == 1) {
-    //   getdataset();
-    // }
-    // else;
-
     ros::spinOnce();
     loop_rate.sleep();
   }

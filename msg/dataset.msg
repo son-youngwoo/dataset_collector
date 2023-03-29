@@ -2,4 +2,7 @@ int64 id
 float32 world_x_init
 float32 world_y_init
 float32 world_z_init
-grid_map_msgs/GridMap elevation_map_raw
+float32 global_x_tar
+float32 global_y_tar
+bool isSuccess
+grid_map_msgs/GridMap elevation_map_realtime
