@@ -8,20 +8,16 @@
     <arg name="gui" value="true"/>
     <arg name="headless" value="false"/>
     <!-- <arg name="world_name" value="$(find dataset_collector)/worlds/base.world"/> -->
-    <arg name="world_name" value="$(find dataset_collector)/worlds/terrain_1.world"/>
-    <!-- <arg name="world_name" value="$(find dataset_collector)/worlds/terrain_2.world"/>
-    <arg name="world_name" value="$(find dataset_collector)/worlds/terrain_3.world"/>
-    <arg name="world_name" value="$(find dataset_collector)/worlds/terrain_4.world"/>
-    <arg name="world_name" value="$(find dataset_collector)/worlds/terrain_5.world"/>
-    <arg name="world_name" value="$(find dataset_collector)/worlds/terrain_6.world"/> -->
+    <!-- <arg name="world_name" value="$(find dataset_collector)/worlds/terrain_1.world"/> -->
+    <arg name="world_name" value="$(find dataset_collector)/worlds/terrain_2.world"/>
+    <!-- <arg name="world_name" value="$(find dataset_collector)/worlds/terrain_3.world"/> -->
+    <!-- <arg name="world_name" value="$(find dataset_collector)/worlds/terrain_4.world"/> -->
+    <!-- <arg name="world_name" value="$(find dataset_collector)/worlds/terrain_5.world"/> -->
+    <!-- <arg name="world_name" value="$(find dataset_collector)/worlds/terrain_6.world"/> -->
   </include>
   
   <!-- Start RViz -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find dataset_collector)/rviz/config.rviz"/>
-  <!-- <node pkg="tf" type="static_transform_publisher" name="world_to_camera1" args="5 5 10 -1.5708 0 3.141592654 /world /camera1 100"/>
-  <node pkg="tf" type="static_transform_publisher" name="world_to_camera2" args="-5 5 10 -1.5708 0 3.141592654 /world /camera2 100"/>
-  <node pkg="tf" type="static_transform_publisher" name="world_to_camera3" args="-5 -5 10 -1.5708 0 3.141592654 /world /camera3 100"/>
-  <node pkg="tf" type="static_transform_publisher" name="world_to_camera4" args="5 -5 10 -1.5708 0 3.141592654 /world /camera4 100"/> -->
 
   <node pkg="tf" type="static_transform_publisher" name="world_to_camera_base" args="0 0 10 0 0 0 /world /camera_base 100"/>
   <node pkg="tf" type="static_transform_publisher" name="camera_base_to_camera1" args="5 5 0 -1.5708 0 3.141592654 /camera_base /camera1 100"/>
@@ -29,14 +25,4 @@
   <node pkg="tf" type="static_transform_publisher" name="camera_base_to_camera3" args="-5 -5 0 -1.5708 0 3.141592654 /camera_base /camera3 100"/>
   <node pkg="tf" type="static_transform_publisher" name="camera_base_to_camera4" args="5 -5 0 -1.5708 0 3.141592654 /camera_base /camera4 100"/>
 
-  <!-- <node pkg="rostopic" type="rostopic" name="pose_publisher" args="pub /PoseWithCovariance_global_map geometry_msgs/PoseWithCovariance">
-    <param name="hz" value="1000" />
-    <param name="covariance" value="[0.1, 0, 0, 0, 0, 0, 
-                                        0, 0.1, 0, 0, 0, 0, 
-                                        0, 0, 0.1, 0, 0, 0, 
-                                        0, 0, 0, 0.1, 0, 0, 
-                                        0, 0, 0, 0, 0.1, 0, 
-                                        0, 0, 0, 0, 0, 0.1]" />
-    <param name="pose" value="{position: {x: 0.0, y: 0.0, z: 10.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}" />
-  </node> -->
 </launch>

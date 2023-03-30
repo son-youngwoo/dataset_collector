@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+  <group ns="aidin81">
+    <node name="dataset_collector" pkg="dataset_collector" type="dataset_collector" args="aidin81" />
+    <node name="respawn_robot" pkg="dataset_collector" type="respawn_robot" args="aidin81" />
+  </group>
+</launch>

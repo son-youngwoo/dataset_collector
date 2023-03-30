@@ -2050,6 +2050,8 @@ double world_y_init = 0;
 double world_z_init = 0;
 double global_x_tar = 0;
 double global_y_tar = 0;
+int duration = 0;
+double yaw_init = 0;
 bool isSuccess = 0;
 grid_map_msgs::GridMap elevation_map_realtime;
 
@@ -2970,7 +2972,7 @@ void GetGrayImage(const grid_map_msgs::GridMap& msg, int num) //son
 //     gridtoimage_cur(elevation_map_local_msgs, id); // current method
 // }
 
-void SaveDataset(int _id, double _global_x_tar, double _global_y_tar, bool _isSuccess) {
+void SaveDataset(int _id, double _yaw_init, double _global_x_tar, double _global_y_tar, int _duration, bool _isSuccess) {
     // create the output file stream
 
     ofstream file("/home/son/Desktop/dataset/dataset1/dataset.csv", ios::app);
@@ -2984,7 +2986,7 @@ void SaveDataset(int _id, double _global_x_tar, double _global_y_tar, bool _isSu
     // file << "id,global_initial_x,global_initial_y,local_target_x,local_target_y,success_or_failure" << endl;
 
     // write some sample data
-    file << _id << "," << _global_x_tar << "," << _global_y_tar << "," << _isSuccess << endl;
+    file << _id << "," << _yaw_init << "," << _global_x_tar << "," << _global_y_tar << "," << _duration << "," << _isSuccess << endl;
 
     // close the file
     file.close();
@@ -2997,9 +2999,11 @@ void msgCallbackDataset(const dataset_collector::dataset& msg) {
     world_x_init = msg.world_x_init; // for GetLocalMap
     world_y_init = msg.world_y_init; // for GetLocalMap
     world_z_init = msg.world_z_init; // for GetLocalMap
+    yaw_init = msg.yaw_init; // for dataset
     global_x_tar = msg.global_x_tar; // for dataset
-    global_y_tar = msg.global_y_tar; // for dataset
-    isSuccess = msg.isSuccess; // for dataset 
+    global_y_tar = msg.global_y_tar; // for dataset 
+    duration = msg.duration; // for dataset
+    isSuccess = msg.isSuccess; // for dataset
     elevation_map_realtime = msg.elevation_map_realtime;
     
     std::cout << "======================================" << std::endl;
@@ -3007,8 +3011,10 @@ void msgCallbackDataset(const dataset_collector::dataset& msg) {
     std::cout << "world_x: " << world_x_init << std::endl;
     std::cout << "world_y: " << world_y_init << std::endl;
     std::cout << "world_z: " << world_z_init << std::endl;
+    std::cout << "yaw_init: " << yaw_init << std::endl;
     std::cout << "global_x_tar: " << global_x_tar << std::endl;
     std::cout << "global_y_tar: " << global_y_tar << std::endl;
+    std::cout << "duration: " << duration << std::endl;
     
     if (isSuccess == true) {
       std::cout << "result: success" << std::endl;
@@ -3023,7 +3029,7 @@ void msgCallbackDataset(const dataset_collector::dataset& msg) {
     grid_map::GridMapRosConverter::toMessage(elevation_map_local, elevation_map_local_msg);
 
     GetGrayImage(elevation_map_local_msg, id);
-    SaveDataset(id, global_x_tar, global_y_tar, isSuccess);
+    SaveDataset(id, yaw_init, global_x_tar, global_y_tar, duration, isSuccess);
 
     // Use if you want compare local map from global map
     // with local map from realtime sensor data
@@ -3044,7 +3050,7 @@ void msgCallbackDataset(const dataset_collector::dataset& msg) {
 void GetGlobalMap() {
   // Open the bag file
   rosbag::Bag bag;
-  bag.open("/home/son/Desktop/dataset/dataset1/global_map_1.bag", rosbag::bagmode::Read);
+  bag.open("/home/son/Desktop/dataset/dataset1/terrain_2.bag", rosbag::bagmode::Read);
   // bag.open("/home/son/Desktop/dataset/dataset1/global_map_base.bag", rosbag::bagmode::Read);
 
   // Create a view for the desired topic
