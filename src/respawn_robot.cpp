@@ -3462,20 +3462,20 @@ int main(int argc, char** argv)
 
     ROSInit(nh);
 
+    robot_namespace = argv[1]; // get robot_namespace from .launch 
+
+    ofstream outfile("/home/son/Desktop/dataset/dataset1/terminal_output_" + robot_namespace + ".txt");
+
     ros::Rate rate(10); 
     
     while(ros::ok()) {
-
-        
-        
-
         if (step == 0) { // preparing ...
             if(overturn == 1) { // Imergency Respawn
                 cnt_respawn++;
 
                 if (cnt_respawn == 1) { // 0.1s
 
-                    if(cnt_resetsim == 5) {
+                    if(cnt_resetsim == 30) {
 
                         ROS_ERROR("!!! Reset Simulation !!!");
 
@@ -3502,7 +3502,7 @@ int main(int argc, char** argv)
                     else {
                         cnt_resetsim = cnt_resetsim + 1;
 
-                        ROS_ERROR("!!! Imergency Respawn %d !!!", cnt_resetsim);
+                        // ROS_ERROR("!!! Imergency Respawn %d !!!", cnt_resetsim);
 
                         outfile << "=========================\n"; 
                         outfile << "!!! Imergency Respawn " << cnt_resetsim << " " << "!!!\n";
@@ -3534,9 +3534,9 @@ int main(int argc, char** argv)
                 cnt_ready++;
 
                 if(cnt_ready == 1) {
-                    std::cout << "====================" << data_id << "====================" << std::endl;
+                    // std::cout << "====================" << data_id << "====================" << std::endl;
                     outfile << "====================" << data_id << "====================\n";
-                    std::cout << "Preparing Step" << std::endl;
+                    // std::cout << "Preparing Step" << std::endl;
                     outfile << "Preparing Step\n";
                 }
                 else if(cnt_ready == 10) { // 2
@@ -3545,7 +3545,7 @@ int main(int argc, char** argv)
                         overturn = 1;
                     }
 
-                    std::cout << "  > initialize imu yaw" << std::endl;
+                    // std::cout << "  > initialize imu yaw" << std::endl;
                     outfile << "  > initialize imu yaw\n";
                     
                     yaw_init = yaw;
@@ -3554,7 +3554,7 @@ int main(int argc, char** argv)
                     PubTargetFlag(1);
                 }
                 else if(cnt_ready == 25 ) { // 
-                    std::cout << "  > mpc" << std::endl;
+                    // std::cout << "  > mpc" << std::endl;
                     outfile << "  > mpc\n";
                     MPCMode();                   
                 }
@@ -3564,7 +3564,7 @@ int main(int argc, char** argv)
                     }
                 }
                 else if(cnt_ready == 55) {
-                    std::cout << "Tracking Step" << std::endl;
+                    // std::cout << "Tracking Step" << std::endl;
                     outfile << "  > Tracking Step\n";
                     step = 1;
                 }
@@ -3592,8 +3592,18 @@ int main(int argc, char** argv)
                 cnt_path++;
 
                 PublishPath(cnt_path);
+
+                if(cnt_path == 1) {
+                    std::cout << robot_namespace << "/" << data_id << "/" << yaw_init << "/" << global_x_tar << "/" << global_y_tar << std::endl;
+                    // std::cout << "  > yaw_init: " << yaw_init << std::endl;
+                    outfile << "  > yaw_init: " << yaw_init << "\n";
+                    // std::cout << "  > global_x_tar: " << global_x_tar << std::endl;
+                    outfile << "  > global_x_tar: " << global_x_tar << "\n";
+                    // std::cout << "  > global_y_tar: " << global_y_tar << std::endl;
+                    outfile << "  > global_y_tar: " << global_y_tar << "\n";
+                }
                 
-                print_check(cnt_duration, "  > moving ...");
+                // print_check(cnt_duration, "  > moving ...");
 
                 if(abs(yaw_target - _yaw_target) < 0.01) {
                     cnt_forward++;
@@ -3667,13 +3677,13 @@ int main(int argc, char** argv)
                     pub_dataset.publish(dataset);
                     
                     if (isSuccess == 1) {
-                        std::cout << "  > duration: " << dataset.duration << std::endl;
+                        // std::cout << "  > duration: " << dataset.duration << std::endl;
                         outfile << "  > duration: " << dataset.duration << "\n";   
-                        std::cout << "  > result: success" << std::endl;
+                        // std::cout << "  > result: success" << std::endl;
                         outfile << "  > result: success\n";
                     }
                     else {
-                        std::cout << "  > result: failure" << std::endl;
+                        // std::cout << "  > result: failure" << std::endl;
                         outfile << "  > result: failure\n";
                     }
 
@@ -3681,18 +3691,18 @@ int main(int argc, char** argv)
                 else if (cnt_data > 1) {
                     cnt_respawn++;
                     if (cnt_respawn == 1) { // 2s
-                        std::cout << "Respawn Step" << std::endl;
+                        // std::cout << "Respawn Step" << std::endl;
                         outfile << "Respawn Step\n";
-                        std::cout << "  > crawl" << std::endl;
+                        // std::cout << "  > crawl" << std::endl;
                         outfile << "  > crawl\n";
                         CrawlMode();
                         PublishZeroPath();
                         PublishVelocity(0);
                     }
                     else if (cnt_respawn == 20) {
-                        std::cout << "  > respawn" << std::endl;
+                        // std::cout << "  > respawn" << std::endl;
                         outfile << "  > respawn\n";
-                        std::cout << "=========================================" << std::endl;  
+                        // std::cout << "=========================================" << std::endl;  
                         outfile << "=========================================\n";
                         Respawn();
                     }

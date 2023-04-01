@@ -9,7 +9,7 @@
     <include>
       <name>terrain_4</name>
       <uri>model://terrain_4</uri>
-      <pose>0 0 -0.3 0 0 0</pose>
+      <pose>0 0 0 0 0 0</pose>
     </include>
 
       <physics type="ode" default="true">

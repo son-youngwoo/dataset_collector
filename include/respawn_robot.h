@@ -1064,7 +1064,7 @@ using namespace Eigen;
 
 double roll_limit = 0.7;
 double pitch_limit = 0.7;
-double height_limit = 1;
+double height_limit = 0.7;
 
 int step = 0;
 bool get_isSuccess = 0;
@@ -1113,8 +1113,8 @@ double xvel_target = 0;
 double min_radius = 0.3;
 double max_radius = 0.5;
 
-// double world_x_tar = 0.0;
-// double world_y_tar = 0.0;
+double world_x_tar = 0.0;
+double world_y_tar = 0.0;
 // double trans_x_tar = 0.0;
 // double trans_y_tar = 0.0;
 double global_x_tar = 0.0;
@@ -1129,6 +1129,10 @@ double rand_y_init = 0;
 double R_success = 0.03;
 double dis = 0;
 
+std::string world_x;
+std::string world_y;
+
+std::string robot_namespace;
 
 void Reset();
 
@@ -1161,7 +1165,7 @@ grid_map_msgs::GridMap elevation_map_raw_copy;
 grid_map_msgs::GridMap elevation_map_raw;
 std_msgs::Int8 controlinput;
 
-ofstream outfile("/home/son/Desktop/dataset/dataset1/terminal_output.txt");
+ofstream outfile;
 
 void msgCallbackEstimatedZ(const std_msgs::Float32::ConstPtr& msg) {
     cur_z_est = msg->data;
@@ -1184,16 +1188,39 @@ void msgCallbackElevationMap(const grid_map_msgs::GridMap& msg)
 
 void ROSInit(ros::NodeHandle& _nh)
 {
-    sub_bodypose = _nh.subscribe("/aidin81/BodyPose_sim", 10, msgCallbackBodyPose);
-    sub_elevationmap = _nh.subscribe("/aidin81/elevation_mapping/elevation_map_raw", 10, msgCallbackElevationMap);
-    sub_estimatedz = _nh.subscribe("/aidin81/estimatedz", 10, msgCallbackEstimatedZ);
+    // sub_bodypose = _nh.subscribe("/aidin81/BodyPose_sim", 10, msgCallbackBodyPose);
+    // sub_elevationmap = _nh.subscribe("/aidin81/elevation_mapping/elevation_map_raw", 10, msgCallbackElevationMap);
+    // sub_estimatedz = _nh.subscribe("/aidin81/estimatedz", 10, msgCallbackEstimatedZ);
 
-    pub_path = _nh.advertise<nav_msgs::Path>("/aidin81/Path", 100);
-    pub_path_vis = _nh.advertise<nav_msgs::Path>("/aidin81/Path_vis", 100);
-    pub_controlinput = _nh.advertise<std_msgs::Int8>("/aidin81/ControlInput", 100);
-    pub_dataset = _nh.advertise<dataset_collector::dataset>("/aidin81/dataset", 100);
-    pub_targetflag = _nh.advertise<std_msgs::Int8>("/aidin81/targetflag", 100);
-    pub_xvel = _nh.advertise<std_msgs::Float32>("/aidin81/xvel_target", 100);
+    // pub_path = _nh.advertise<nav_msgs::Path>("/aidin81/Path", 100);
+    // pub_path_vis = _nh.advertise<nav_msgs::Path>("/aidin81/Path_vis", 100);
+    // pub_controlinput = _nh.advertise<std_msgs::Int8>("/aidin81/ControlInput", 100);
+    // pub_dataset = _nh.advertise<dataset_collector::dataset>("/aidin81/dataset", 100);
+    // pub_targetflag = _nh.advertise<std_msgs::Int8>("/aidin81/targetflag", 100);
+    // pub_xvel = _nh.advertise<std_msgs::Float32>("/aidin81/xvel_target", 100);
+    // // pub_zerotorqueflag = _nh.advertise<std_msgs::Bool>("/aidin81/ZeroTorqueFlag", 100);
+    // // pub_vel = _nh.advertise<std_msgs::Float32MultiArray>("/aidin81/vel_target", 100);
+    // // pub_randxy = _nh.advertise<std_msgs::Float32MultiArray>("/aidin81/randxy", 100);
+    // // pub_resetcontactflag = _nh.advertise<std_msgs::Bool>("/aidin81/ResetContactFlag", 100);
+    // // pub_stateflag = _nh.advertise<std_msgs::Bool>("/aidin81/StateFlag", 100);
+    // // pub_firstz = _nh.advertise<std_msgs::Float32>("/aidin81/first_z_world", 100);
+    // // pub_initpos = _nh.advertise<std_msgs::Float32MultiArray>("/aidin81/InitPos", 100);
+
+    // ClearMapClient = _nh.serviceClient<std_srvs::Empty>("/aidin81/elevation_mapping/clear_map");
+    // resetworldClient = _nh.serviceClient<std_srvs::Empty>("/gazebo/reset_world");
+    // resetsimulationClient = _nh.serviceClient<std_srvs::Empty>("/gazebo/reset_simulation");
+    // SetModelStateClient = _nh.serviceClient<gazebo_msgs::SetModelState>("/gazebo/set_model_state");
+
+    sub_bodypose = _nh.subscribe("BodyPose_sim", 10, msgCallbackBodyPose);
+    sub_elevationmap = _nh.subscribe("elevation_mapping/elevation_map_raw", 10, msgCallbackElevationMap);
+    sub_estimatedz = _nh.subscribe("estimatedz", 10, msgCallbackEstimatedZ);
+
+    pub_path = _nh.advertise<nav_msgs::Path>("Path", 100);
+    pub_path_vis = _nh.advertise<nav_msgs::Path>("Path_vis", 100);
+    pub_controlinput = _nh.advertise<std_msgs::Int8>("ControlInput", 100);
+    pub_dataset = _nh.advertise<dataset_collector::dataset>("dataset", 100);
+    pub_targetflag = _nh.advertise<std_msgs::Int8>("targetflag", 100);
+    pub_xvel = _nh.advertise<std_msgs::Float32>("xvel_target", 100);
     // pub_zerotorqueflag = _nh.advertise<std_msgs::Bool>("/aidin81/ZeroTorqueFlag", 100);
     // pub_vel = _nh.advertise<std_msgs::Float32MultiArray>("/aidin81/vel_target", 100);
     // pub_randxy = _nh.advertise<std_msgs::Float32MultiArray>("/aidin81/randxy", 100);
@@ -1202,7 +1229,7 @@ void ROSInit(ros::NodeHandle& _nh)
     // pub_firstz = _nh.advertise<std_msgs::Float32>("/aidin81/first_z_world", 100);
     // pub_initpos = _nh.advertise<std_msgs::Float32MultiArray>("/aidin81/InitPos", 100);
 
-    ClearMapClient = _nh.serviceClient<std_srvs::Empty>("/aidin81/elevation_mapping/clear_map");
+    ClearMapClient = _nh.serviceClient<std_srvs::Empty>("elevation_mapping/clear_map");
     resetworldClient = _nh.serviceClient<std_srvs::Empty>("/gazebo/reset_world");
     resetsimulationClient = _nh.serviceClient<std_srvs::Empty>("/gazebo/reset_simulation");
     SetModelStateClient = _nh.serviceClient<gazebo_msgs::SetModelState>("/gazebo/set_model_state");
@@ -1313,10 +1340,22 @@ void Respawn() {
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> dis_init(-9, 9);
 
-    rand_x_init = dis_init(gen);
-    rand_y_init = dis_init(gen);
+    if (robot_namespace == "aidin81") {
+        std::uniform_real_distribution<double> dis_init_x(-9, 9);
+        std::uniform_real_distribution<double> dis_init_y(-9, 9);
+
+        rand_x_init = dis_init_x(gen);
+        rand_y_init = dis_init_y(gen);
+    }
+    else if (robot_namespace == "aidin82") {
+        std::uniform_real_distribution<double> dis_init_x(-9+21, 9+21);
+        std::uniform_real_distribution<double> dis_init_y(-9, 9);
+
+        rand_x_init = dis_init_x(gen);
+        rand_y_init = dis_init_y(gen);
+    }
+    
 
     // do {
     //     rand_x_init = dis_init(gen);
@@ -1333,7 +1372,7 @@ void Respawn() {
     q_yaw.setRPY(0, 0, rand_yaw_init);
 
     gazebo_msgs::ModelState modelState;
-    modelState.model_name = "aidin81";  // Replace with your robot's name
+    modelState.model_name = robot_namespace;  // Replace with your robot's name
     modelState.pose.position.x = rand_x_init;   // Replace with your robot's starting position
     modelState.pose.position.y = rand_y_init;
     modelState.pose.position.z = 1.4;
@@ -1373,13 +1412,6 @@ void PublishPath(int _cnt_path){
         // yaw_target_deg = abs(yaw_target/M_PI*180);
         num_div = abs(yaw_target/M_PI*180)/ 4;
         yaw_target_dis = yaw_target / num_div;
-
-        std::cout << "  > yaw_init: " << yaw_init << std::endl;
-        outfile << "  > yaw_init: " << yaw_init << "\n";
-        std::cout << "  > global_x_tar: " << global_x_tar << std::endl;
-        outfile << "  > global_x_tar: " << global_x_tar << "\n";
-        std::cout << "  > global_y_tar: " << global_y_tar << std::endl;
-        outfile << "  > global_y_tar: " << global_y_tar << "\n";
     }
 
     global_x_cur = cos(-yaw_init)*(cur_x_world - x_init) - sin(-yaw_init)*(cur_y_world - y_init);

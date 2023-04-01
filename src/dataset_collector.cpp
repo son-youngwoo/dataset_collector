@@ -2057,6 +2057,9 @@ grid_map_msgs::GridMap elevation_map_realtime;
 
 grid_map::GridMap elevation_map_global;
 
+std::string robot_namespace;
+
+
 
 grid_map::GridMap GetLocalMap(double _world_x_init, double _world_y_init, double _world_z_init);
 void GetGlobalMap();
@@ -2844,7 +2847,7 @@ void GetGrayImage(const grid_map_msgs::GridMap& msg, int num) //son
 
   srand((unsigned int)time(NULL));
 
-  filePath_="/home/son/Desktop/dataset/dataset1/elevation_map/num.png";
+  filePath_="/home/son/Desktop/dataset/dataset1/elevation_map_" + robot_namespace + "/num.png";
   filePath_.replace(filePath_.find("num"), 3, std::to_string(num));
   // nodeHandle_.param("grid_map_topic", gridMapTopic_, std::string("/submap3"));
 
@@ -2975,7 +2978,7 @@ void GetGrayImage(const grid_map_msgs::GridMap& msg, int num) //son
 void SaveDataset(int _id, double _yaw_init, double _global_x_tar, double _global_y_tar, int _duration, bool _isSuccess) {
     // create the output file stream
 
-    ofstream file("/home/son/Desktop/dataset/dataset1/dataset.csv", ios::app);
+    ofstream file("/home/son/Desktop/dataset/dataset1/dataset_" + robot_namespace + ".csv", ios::app);
 
     // check if the file was opened successfully
     if (!file.is_open()) {
@@ -2996,7 +2999,12 @@ void SaveDataset(int _id, double _yaw_init, double _global_x_tar, double _global
 
 void msgCallbackDataset(const dataset_collector::dataset& msg) {
     id = msg.id; // for dataset
-    world_x_init = msg.world_x_init; // for GetLocalMap
+    if(robot_namespace == "aidin81"){
+      world_x_init = msg.world_x_init; // for GetLocalMap
+    }
+    else if(robot_namespace == "aidin82") {
+      world_x_init = msg.world_x_init - 21; // for GetLocalMap
+    }
     world_y_init = msg.world_y_init; // for GetLocalMap
     world_z_init = msg.world_z_init; // for GetLocalMap
     yaw_init = msg.yaw_init; // for dataset
@@ -3033,24 +3041,24 @@ void msgCallbackDataset(const dataset_collector::dataset& msg) {
 
     // Use if you want compare local map from global map
     // with local map from realtime sensor data
-    grid_map::GridMap _elevation_map_realtime;
-    grid_map::GridMapRosConverter::fromMessage(elevation_map_realtime, _elevation_map_realtime, {"elevation"});
+    // grid_map::GridMap _elevation_map_realtime;
+    // grid_map::GridMapRosConverter::fromMessage(elevation_map_realtime, _elevation_map_realtime, {"elevation"});
 
-    for (grid_map::GridMapIterator it(_elevation_map_realtime); !it.isPastEnd(); ++it) {
-    if (_elevation_map_realtime.isValid(*it, "elevation_inpainted")) {
-        _elevation_map_realtime.at("elevation_inpainted", *it) -= world_z_init;
-      }
-    }
-    grid_map_msgs::GridMap elevation_map_realtime_msg;
-    grid_map::GridMapRosConverter::toMessage(_elevation_map_realtime, elevation_map_realtime_msg);
+    // for (grid_map::GridMapIterator it(_elevation_map_realtime); !it.isPastEnd(); ++it) {
+    // if (_elevation_map_realtime.isValid(*it, "elevation_inpainted")) {
+    //     _elevation_map_realtime.at("elevation_inpainted", *it) -= world_z_init;
+    //   }
+    // }
+    // grid_map_msgs::GridMap elevation_map_realtime_msg;
+    // grid_map::GridMapRosConverter::toMessage(_elevation_map_realtime, elevation_map_realtime_msg);
 
-    GetGrayImage_realtime(elevation_map_realtime_msg, id);
+    // GetGrayImage_realtime(elevation_map_realtime_msg, id);
 }
 
 void GetGlobalMap() {
   // Open the bag file
   rosbag::Bag bag;
-  bag.open("/home/son/Desktop/dataset/dataset1/terrain_2.bag", rosbag::bagmode::Read);
+  bag.open("/home/son/Desktop/dataset/dataset1/terrain_3.bag", rosbag::bagmode::Read);
   // bag.open("/home/son/Desktop/dataset/dataset1/global_map_base.bag", rosbag::bagmode::Read);
 
   // Create a view for the desired topic
@@ -3076,7 +3084,7 @@ grid_map::GridMap GetLocalMap(double _world_x_init, double _world_y_init, double
 
   // Define submap center and size
   grid_map::Position submap_center(_world_x_init, _world_y_init);  // center of submap in map coordinates
-  grid_map::Length submap_size(2.5, 2.5);
+  grid_map::Length submap_size(2, 2);
   bool _isSuccess = true;
   
   // Extract submap
@@ -3097,8 +3105,11 @@ int main (int argc, char** argv)
   // Initialize ROS
   ros::init (argc, argv, "dataset_collector");
   ros::NodeHandle nh;
-  ros::Subscriber sub_dataset = nh.subscribe("/aidin81/dataset", 100, msgCallbackDataset);
-  
+  // ros::Subscriber sub_dataset = nh.subscribe("/aidin81/dataset", 100, msgCallbackDataset);
+  ros::Subscriber sub_dataset = nh.subscribe("dataset", 100, msgCallbackDataset);
+  	
+  robot_namespace = argv[1]; // get robot_namespace from .launch 
+
   GetGlobalMap(); // get grid_map::GridMap elevation_map_global
 
   ros::Rate loop_rate(10);
