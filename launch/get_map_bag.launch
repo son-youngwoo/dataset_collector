@@ -20,25 +20,11 @@
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find dataset_collector)/rviz/config.rviz"/>
 
   <!-- tf -->
-  <!-- basic -->
   <node pkg="tf" type="static_transform_publisher" name="world_to_camera_base" args="0 0 10 0 0 0 /world /camera_base 100"/>
   <node pkg="tf" type="static_transform_publisher" name="camera_base_to_camera1" args="12 12 0 -1.5708 0 3.141592654 /camera_base /camera1 100"/>
   <node pkg="tf" type="static_transform_publisher" name="camera_base_to_camera2" args="-12 12 0 -1.5708 0 3.141592654 /camera_base /camera2 100"/>
   <node pkg="tf" type="static_transform_publisher" name="camera_base_to_camera3" args="-12 -12 0 -1.5708 0 3.141592654 /camera_base /camera3 100"/>
   <node pkg="tf" type="static_transform_publisher" name="camera_base_to_camera4" args="12 -12 0 -1.5708 0 3.141592654 /camera_base /camera4 100"/>
   <node pkg="tf" type="static_transform_publisher" name="camera_base_to_camera5" args="0 0 0 -1.5708 0 3.141592654 /camera_base /camera5 100"/>
-
-
-  <!-- terrain_3 -->
-  <!-- <node pkg="tf" type="static_transform_publisher" name="world_to_camera_base" args="0 0 10 0 0 0 /world /camera_base 100"/>
-  <node pkg="tf" type="static_transform_publisher" name="camera_base_to_camera1" args="12 12 0 -1.5708 0 3.141592654 /camera_base /camera1 100"/>
-  <node pkg="tf" type="static_transform_publisher" name="camera_base_to_camera2" args="0 12 0 -1.5708 0 3.141592654 /camera_base /camera2 100"/>
-  <node pkg="tf" type="static_transform_publisher" name="camera_base_to_camera3" args="-12 12 0 -1.5708 0 3.141592654 /camera_base /camera3 100"/>
-  <node pkg="tf" type="static_transform_publisher" name="camera_base_to_camera4" args="-12 0 0 -1.5708 0 3.141592654 /camera_base /camera4 100"/>
-  <node pkg="tf" type="static_transform_publisher" name="camera_base_to_camera5" args="-12 -12 0 -1.5708 0 3.141592654 /camera_base /camera5 100"/>
-  <node pkg="tf" type="static_transform_publisher" name="camera_base_to_camera6" args="0 -12 0 -1.5708 0 3.141592654 /camera_base /camera6 100"/>
-  <node pkg="tf" type="static_transform_publisher" name="camera_base_to_camera7" args="12 -12 0 -1.5708 0 3.141592654 /camera_base /camera7 100"/>
-  <node pkg="tf" type="static_transform_publisher" name="camera_base_to_camera8" args="12 0 0 -1.5708 0 3.141592654 /camera_base /camera8 100"/>
-  <node pkg="tf" type="static_transform_publisher" name="camera_base_to_camera9" args="0 0 0 -1.5708 0 3.141592654 /camera_base /camera9 100"/> -->
 
 </launch>

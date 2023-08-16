@@ -1,0 +1,335 @@
+<?xml version="1.0"?>
+<robot name="rectangular_model">
+
+
+  <material name="white">
+    <color rgba="1.0 1.0 1.0 1.0"/>
+  </material>
+
+   <material name="orange">
+    <color rgba="1.0 0.423529411765 0.0392156862745 1.0"/>
+  </material>
+
+<!--////////////////////////////////   Odom    ////////////////////////////////-->
+  
+  <link name="base">
+    <inertial>
+      <mass value="10"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="0.1104557116459" ixy="0.0002742627834" ixz="-0.0007826805716" iyy="0.2925866863396" iyz="-0.0018014327089" izz="0.3259809298915"/>
+    </inertial>
+    <collision name="body_col">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.2 0.6 0.1"/>
+      </geometry>
+    </collision>
+    <!-- <visual name="body_vis">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.2 0.6 0.1"/>
+      </geometry>
+    </visual> -->
+    <!-- <collision name="base_col">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.97714 0.324 0.1"/>
+      </geometry>
+    </collision>
+    <visual name="base_vis">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.97714 0.324 0.1"/>
+      </geometry>
+    </visual> -->
+   </link>
+
+  <joint name="RFJ_foot" type="fixed" dont_collapse="true">
+    <parent link="base"/>
+    <child link="RF_foot"/>
+    <origin rpy="0 0 0" xyz="0.55 -0.25 -0.08"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+   <link name="RF_foot">
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0" ixy="0.0" ixz="0.0" iyy="0" iyz="0.0" izz="0"/>
+    </inertial>
+    <collision name="RF_foot_col1">
+      <origin rpy="0  0  0" xyz="0.011  -0.007  0"/>
+      <geometry>
+        <sphere radius="0.04"/>
+      </geometry>
+      <contact>
+        <lateral_friction value="1.0" />
+        <rolling_friction value="0.001"/>
+        <torsional_friction value="0.001"/>
+        <contact_cfm value="0.0"/>
+        <contact_erp value="0.2"/>
+        <ode>
+          <mu>1+e100</mu>
+          <mu2>10000</mu2>
+          <minDepth>0.0002</minDepth>
+          <kp  value="1000000.0"/>
+          <kd  value="100.0"/>
+        </ode>
+      </contact>
+    </collision>
+    <!-- <visual name="RF_foot_vis1">
+      <origin rpy="0  0  0" xyz="0.011  -0.007  0"/>
+      <geometry>
+        <sphere radius="0.04"/>
+      </geometry>
+      <material name="white"/>
+    </visual> -->
+  </link>
+
+  <joint name="LFJ_foot" type="fixed" dont_collapse="true">
+    <parent link="base"/>
+    <child link="LF_foot"/>
+    <origin rpy="0 0 0" xyz="0.55 0.25 -0.08"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+   <link name="LF_foot">
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0" ixy="0.0" ixz="0.0" iyy="0" iyz="0.0" izz="0"/>
+    </inertial>
+    <collision name="LF_foot_col1">
+      <origin rpy="0  0  0" xyz="0.011  -0.007  0"/>
+      <geometry>
+        <sphere radius="0.04"/>
+      </geometry>
+      <contact>
+        <lateral_friction value="1.0" />
+        <rolling_friction value="0.001"/>
+        <torsional_friction value="0.001"/>
+        <contact_cfm value="0.0"/>
+        <contact_erp value="0.2"/>
+        <ode>
+          <mu>1+e100</mu>
+          <mu2>10000</mu2>
+          <minDepth>0.0002</minDepth>
+          <kp  value="1000000.0"/>
+          <kd  value="100.0"/>
+        </ode>
+      </contact>
+    </collision>
+    <!-- <visual name="LF_foot_vis1">
+      <origin rpy="0  0  0" xyz="0.011  -0.007  0"/>
+      <geometry>
+        <sphere radius="0.04"/>
+      </geometry>
+      <material name="white"/>
+    </visual> -->
+  </link>
+
+  <joint name="RHJ_foot" type="fixed" dont_collapse="true">
+    <parent link="base"/>
+    <child link="RH_foot"/>
+    <origin rpy="0 0 0" xyz="-0.55 -0.25 -0.08"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+   <link name="RH_foot">
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0" ixy="0.0" ixz="0.0" iyy="0" iyz="0.0" izz="0"/>
+    </inertial>
+    <collision name="RH_foot_col1">
+      <origin rpy="0  0  0" xyz="0.011  -0.007  0"/>
+      <geometry>
+        <sphere radius="0.04"/>
+      </geometry>
+      <contact>
+        <lateral_friction value="1.0" />
+        <rolling_friction value="0.001"/>
+        <torsional_friction value="0.001"/>
+        <contact_cfm value="0.0"/>
+        <contact_erp value="0.2"/>
+        <ode>
+          <mu>1+e100</mu>
+          <mu2>10000</mu2>
+          <minDepth>0.0002</minDepth>
+          <kp  value="1000000.0"/>
+          <kd  value="100.0"/>
+        </ode>
+      </contact>
+    </collision>
+    <!-- <visual name="RH_foot_vis1">
+      <origin rpy="0  0  0" xyz="0.011  -0.007  0"/>
+      <geometry>
+        <sphere radius="0.04"/>
+      </geometry>
+      <material name="white"/>
+    </visual> -->
+  </link>
+
+  <joint name="LHJ_foot" type="fixed" dont_collapse="true">
+    <parent link="base"/>
+    <child link="LH_foot"/>
+    <origin rpy="0 0 0" xyz="-0.55 0.25 -0.08"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+   <link name="LH_foot">
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0" ixy="0.0" ixz="0.0" iyy="0" iyz="0.0" izz="0"/>
+    </inertial>
+    <collision name="LH_foot_col1">
+      <origin rpy="0  0  0" xyz="0.011  -0.007  0"/>
+      <geometry>
+        <sphere radius="0.04"/>
+      </geometry>
+      <contact>
+        <lateral_friction value="1.0" />
+        <rolling_friction value="0.001"/>
+        <torsional_friction value="0.001"/>
+        <contact_cfm value="0.0"/>
+        <contact_erp value="0.2"/>
+        <ode>
+          <mu>1+e100</mu>
+          <mu2>10000</mu2>
+          <minDepth>0.0002</minDepth>
+          <kp  value="1000000.0"/>
+          <kd  value="100.0"/>
+        </ode>
+      </contact>
+    </collision>
+    <!-- <visual name="LH_foot_vis1">
+      <origin rpy="0  0  0" xyz="0.011  -0.007  0"/>
+      <geometry>
+        <sphere radius="0.04"/>
+      </geometry>
+      <material name="white"/>
+    </visual> -->
+  </link>
+
+
+   <joint name="joint1" type="revolute">
+    <parent link="base"/>
+    <child link="body"/>
+    <origin xyz="0 0 0.2" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.10" upper="3.10" effort="2000" velocity="10"/>
+  </joint>
+
+<!--////////////////////////////////   Body    ////////////////////////////////-->
+  <link name="body">
+    <inertial>
+      <mass value="12.3188555"/>
+      <origin xyz="0.00142 -0.00222 -0.04319" rpy="0 0 0"/>
+      <inertia ixx="0.1104557116459" ixy="0.0002742627834" ixz="-0.0007826805716" iyy="0.2925866863396" iyz="-0.0018014327089" izz="0.3259809298915"/>
+    </inertial>
+    <collision name="body_col">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.2 0.6 0.215"/>
+      </geometry>
+    </collision>
+    <visual name="body_vis">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.2 0.6 0.215"/>
+      </geometry>
+    </visual>
+    <!-- <collision name="body_col">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.97714 0.324 0.215"/>
+      </geometry>
+    </collision>
+    <visual name="body_vis">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.97714 0.324 0.215"/>
+      </geometry>
+    </visual> -->
+  </link>
+
+   <gazebo reference="body">
+    <material>Gazebo/Orange</material>
+  </gazebo>
+  <!--//////////////////////////////// IMU ////////////////////////////////-->
+
+  <link name="imu_link">
+      <collision>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <geometry>
+            <box size="0.1 0.1 0.1"/>
+          </geometry>
+      </collision>
+      <visual>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <geometry>
+            <box size="0.1 0.1 0.1"/>
+          </geometry>
+          <material name="orange"/>
+      </visual>
+      <inertial>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <mass value="0.1"/>
+          <inertia
+        ixx="0.00016667" ixy="0.0" ixz="0.0"
+        iyy="0.00016667" iyz="0.0"
+        izz="0.00016667"/>
+      </inertial>
+  </link>
+
+  <joint name="imu_joint" type="fixed">
+      <parent link="body"/>
+      <child link="imu_link"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <axis xyz="0 0 0"/>
+  </joint>
+
+  <gazebo reference="imu_link">
+    <gravity>true</gravity>
+    <sensor name="imu_sensor" type="imu">
+      <always_on>true</always_on>
+      <update_rate>1000</update_rate>
+      <visualize>true</visualize>
+      <topic>__default_topic__</topic>
+      <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+        <topicName>IMU_sim</topicName>
+        <bodyName>imu_link</bodyName>
+        <updateRateHZ>0.0</updateRateHZ>
+        <gaussianNoise>0.0</gaussianNoise>
+        <xyzOffset>0 0 0</xyzOffset>
+        <rpyOffset>0 0 0</rpyOffset>
+        <frameName>imu_link</frameName>
+        <initialOrientationAsReference>false</initialOrientationAsReference>
+      </plugin>
+      <pose>0 0 0 0 0 0</pose>
+    </sensor>
+  </gazebo>
+
+ <!-- <transmission name="tran1">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint1">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor1">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/data1</robotNamespace>
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+    </plugin>
+  </gazebo> -->
+
+  <gazebo>
+    <plugin name="rec_model_plugin" filename="librec_model_plugin.so">
+    </plugin>
+  </gazebo>
+  
+
+</robot>
+

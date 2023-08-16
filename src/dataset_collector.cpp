@@ -2816,6 +2816,25 @@ void Gridmap2pt(grid_map::GridMap& mapOut, aidin_msgs::pt_array& msg)
 //   sensor_msgs::Image ros_image;
 //   image.toImageMsg(ros_image);
 // }
+void GetGlobalGrayImage(const grid_map_msgs::GridMap& msg) //son
+{
+  ros::NodeHandle nodeHandle_;
+  std::string gridMapTopic_;
+  std::string filePath_;
+
+  srand((unsigned int)time(NULL));
+
+  filePath_="/home/son/Desktop/dataset/dataset1/map/terrain_3.png";
+
+  grid_map::GridMap map;
+  cv_bridge::CvImage image;
+  grid_map::GridMapRosConverter::fromMessage(msg, map, {"elevation"});
+  grid_map::GridMapRosConverter::toCvImage(map,"elevation_inpainted", sensor_msgs::image_encodings::MONO8,-1.0, 0, image);
+  bool success = cv::imwrite(filePath_.c_str(),image.image, {cv::IMWRITE_PNG_STRATEGY_DEFAULT});
+  std::cout << filePath_ << std::endl;
+  sensor_msgs::Image ros_image;
+  image.toImageMsg(ros_image);
+}
 
 void GetGrayImage_realtime(const grid_map_msgs::GridMap& msg, int num) //son for comparison with current method
 {
@@ -3058,7 +3077,7 @@ void msgCallbackDataset(const dataset_collector::dataset& msg) {
 void GetGlobalMap() {
   // Open the bag file
   rosbag::Bag bag;
-  bag.open("/home/son/Desktop/dataset/dataset1/terrain_3.bag", rosbag::bagmode::Read);
+  bag.open("/home/son/Desktop/dataset/dataset1/map/terrain_3.bag", rosbag::bagmode::Read);
   // bag.open("/home/son/Desktop/dataset/dataset1/global_map_base.bag", rosbag::bagmode::Read);
 
   // Create a view for the desired topic
@@ -3111,6 +3130,19 @@ int main (int argc, char** argv)
   robot_namespace = argv[1]; // get robot_namespace from .launch 
 
   GetGlobalMap(); // get grid_map::GridMap elevation_map_global
+
+  /// get global gray scale map //////////////////////////////////////////////////////////////////
+    // for (grid_map::GridMapIterator it(elevation_map_global); !it.isPastEnd(); ++it) {
+    //   if (elevation_map_global.isValid(*it, "elevation_inpainted")) {
+    //       elevation_map_global.at("elevation_inpainted", *it) -= 0.62;
+    //   }
+    // }
+    // grid_map_msgs::GridMap elevation_map_global_msg; // grid_map_msgs
+    // grid_map::GridMapRosConverter::toMessage(elevation_map_global, elevation_map_global_msg);
+    // GetGlobalGrayImage(elevation_map_global_msg);
+
+    // ROS_INFO("Getting global map done");
+  /////////////////////////////////////////////////////////////////////////////////////////////////
 
   ros::Rate loop_rate(10);
 

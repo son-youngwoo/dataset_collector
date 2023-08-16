@@ -1,0 +1,17 @@
+<launch>
+    <node name="dataset_merge" pkg="dataset_collector" type="dataset_merge.py" output="screen">
+        
+        <!-- Set elevation map path  -->
+        <!-- merge path -->
+        <param name="map_dst_path" type="string" value="/home/son/Desktop/dataset/dataset4/elevation_map/" />
+        <!-- source path -->
+        <param name="map_src_path" type="string" value="/home/son/Desktop/dataset/dataset4/elevation_map_data1/,/home/son/Desktop/dataset/dataset4/elevation_map_data2/,/home/son/Desktop/dataset/dataset4/elevation_map_data3/,/home/son/Desktop/dataset/dataset4/elevation_map_data4/,/home/son/Desktop/dataset/dataset4/elevation_map_data5/,/home/son/Desktop/dataset/dataset4/elevation_map_data6/,/home/son/Desktop/dataset/dataset4/elevation_map_data7/,/home/son/Desktop/dataset/dataset4/elevation_map_data8/" />
+        
+        <!-- Set .csv dataset path -->
+        <!-- merge path -->
+        <param name="csv_dst_path" type="string" value="/home/son/Desktop/dataset/dataset4/dataset.csv" /> 
+        <!-- source path -->
+        <param name="csv_src_path" type="string" value="/home/son/Desktop/dataset/dataset4/dataset_data1.csv,/home/son/Desktop/dataset/dataset4/dataset_data2.csv,/home/son/Desktop/dataset/dataset4/dataset_data3.csv,/home/son/Desktop/dataset/dataset4/dataset_data4.csv,/home/son/Desktop/dataset/dataset4/dataset_data5.csv,/home/son/Desktop/dataset/dataset4/dataset_data6.csv,/home/son/Desktop/dataset/dataset4/dataset_data7.csv,/home/son/Desktop/dataset/dataset4/dataset_data8.csv" />
+                
+    </node>
+</launch>

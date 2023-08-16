@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<launch>
+  <group ns="data1">
+    <node name="dataset_collector_rec_model" pkg="dataset_collector" type="dataset_collector_rec_model" args="data1"/>
+    <!-- <node name="respawn_rec_model" pkg="dataset_collector" type="respawn_rec_model" args="data1" output="screen"> -->
+    <node name="respawn_rec_model_base" pkg="dataset_collector" type="respawn_rec_model_base" args="data1" output="screen">
+    <!-- <node name="respawn_rec_model_base" pkg="dataset_collector" type="respawn_rec_model_base" args="data1"> -->
+      <param name="map_x" type="int" value="0" />
+      <param name="map_y" type="int" value="0" />
+    </node>
+  </group>
+
+  <group ns="data2">
+    <node name="dataset_collector_rec_model" pkg="dataset_collector" type="dataset_collector_rec_model" args="data2"/>
+    <!-- <node name="respawn_rec_model" pkg="dataset_collector" type="respawn_rec_model" args="data2" output="screen"> -->
+    <node name="respawn_rec_model_base" pkg="dataset_collector" type="respawn_rec_model_base" args="data2" output="screen">
+    <!-- <node name="respawn_rec_model_base" pkg="dataset_collector" type="respawn_rec_model_base" args="data2"> -->
+      <param name="map_x" type="int" value="21" />
+      <param name="map_y" type="int" value="0" />
+    </node>
+  </group>
+
+  <group ns="data3">
+    <node name="dataset_collector_rec_model" pkg="dataset_collector" type="dataset_collector_rec_model" args="data3"/>
+    <!-- <node name="respawn_rec_model" pkg="dataset_collector" type="respawn_rec_model" args="data3" output="screen"> -->
+    <node name="respawn_rec_model_base" pkg="dataset_collector" type="respawn_rec_model_base" args="data3" output="screen">  
+    <!-- <node name="respawn_rec_model_base" pkg="dataset_collector" type="respawn_rec_model_base" args="data3">   -->
+      <param name="map_x" type="int" value="0" />
+      <param name="map_y" type="int" value="21" />
+    </node>
+  </group>
+
+  <group ns="data4">
+    <node name="dataset_collector_rec_model" pkg="dataset_collector" type="dataset_collector_rec_model" args="data4"/>
+    <!-- <node name="respawn_rec_model" pkg="dataset_collector" type="respawn_rec_model" args="data4" output="screen"> -->
+    <node name="respawn_rec_model_base" pkg="dataset_collector" type="respawn_rec_model_base" args="data4" output="screen">
+    <!-- <node name="respawn_rec_model_base" pkg="dataset_collector" type="respawn_rec_model_base" args="data4"> -->
+      <param name="map_x" type="int" value="21" />
+      <param name="map_y" type="int" value="21" />
+    </node>
+  </group>
+
+  <group ns="data5">
+    <node name="dataset_collector_rec_model" pkg="dataset_collector" type="dataset_collector_rec_model" args="data5"/>
+    <!-- <node name="respawn_rec_model" pkg="dataset_collector" type="respawn_rec_model" args="data5" output="screen"> -->
+    <node name="respawn_rec_model_base" pkg="dataset_collector" type="respawn_rec_model_base" args="data5" output="screen">
+    <!-- <node name="respawn_rec_model_base" pkg="dataset_collector" type="respawn_rec_model_base" args="data5"> -->
+      <param name="map_x" type="int" value="0" />
+      <param name="map_y" type="int" value="42" />
+    </node>
+  </group>
+
+  <group ns="data6">
+    <node name="dataset_collector_rec_model" pkg="dataset_collector" type="dataset_collector_rec_model" args="data6"/>
+    <!-- <node name="respawn_rec_model" pkg="dataset_collector" type="respawn_rec_model" args="data6" output="screen"> -->
+    <node name="respawn_rec_model_base" pkg="dataset_collector" type="respawn_rec_model_base" args="data6" output="screen">
+    <!-- <node name="respawn_rec_model_base" pkg="dataset_collector" type="respawn_rec_model_base" args="data6"> -->
+      <param name="map_x" type="int" value="21" />
+      <param name="map_y" type="int" value="42" />
+    </node>
+  </group>
+
+  <group ns="data7">
+    <node name="dataset_collector_rec_model" pkg="dataset_collector" type="dataset_collector_rec_model" args="data7"/>
+    <!-- <node name="respawn_rec_model" pkg="dataset_collector" type="respawn_rec_model" args="data7" output="screen"> -->
+    <node name="respawn_rec_model_base" pkg="dataset_collector" type="respawn_rec_model_base" args="data7" output="screen">
+    <!-- <node name="respawn_rec_model_base" pkg="dataset_collector" type="respawn_rec_model_base" args="data7"> -->
+      <param name="map_x" type="int" value="0" />
+      <param name="map_y" type="int" value="63" />
+    </node>
+  </group>
+
+  <group ns="data8">
+    <node name="dataset_collector_rec_model" pkg="dataset_collector" type="dataset_collector_rec_model" args="data8"/>
+    <!-- <node name="respawn_rec_model" pkg="dataset_collector" type="respawn_rec_model" args="data8" output="screen"> -->
+    <node name="respawn_rec_model_base" pkg="dataset_collector" type="respawn_rec_model_base" args="data8" output="screen">
+    <!-- <node name="respawn_rec_model_base" pkg="dataset_collector" type="respawn_rec_model_base" args="data8"> -->
+      <param name="map_x" type="int" value="21" />
+      <param name="map_y" type="int" value="63" />
+    </node>
+  </group>
+  
+</launch>

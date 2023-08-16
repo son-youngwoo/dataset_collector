@@ -1,0 +1,11 @@
+<launch>
+    <node name="get_global_map" pkg="dataset_collector" type="get_global_map" output="screen">
+        
+        <!-- Set elevation map bag file source path -->
+        <param name="bag_path" type="string" value="/home/son/Desktop/dataset/dataset3/map/terrain_3.bag" /> 
+                
+        <!-- Set elevation map png file save path  -->
+        <param name="png_path" type="string" value="/home/son/Desktop/dataset/dataset3/map/terrain_3.png" />
+        
+    </node>
+</launch>

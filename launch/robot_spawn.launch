@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="robot_namespace" default="robot"/>
+  <arg name="init_pose" default="-x 0.0 -y 0.0 -z 0.0"/>
+  
+  <group ns="$(arg robot_namespace)">
+
+    <param name="robot_description" textfile="$(find dataset_collector)/urdf/rectangular_model.urdf" />
+    
+    <param name="tf_prefix" value="$(arg robot_namespace)" /> 
+    
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+      <param name="publish_frequency" value="1000.0"/>
+    </node>
+    
+    <!-- <node name="pub_tf" pkg="aidin8_sim" type="pub_tf" args="$(arg robot_namespace)" /> -->
+    
+    <node name="spawn_robot" pkg="gazebo_ros" type="spawn_model"
+          args="$(arg init_pose) -urdf -model $(arg robot_namespace) -param robot_description"
+          output="screen"/>
+
+    <!-- <node name="spawn_robot" pkg="gazebo_ros" type="spawn_model"
+          args="-urdf -model $(arg robot_namespace) -param robot_description"
+          output="screen"/> -->
+
+    <!-- <include file="$(find dataset_collector)/launch/controller_rec_model.launch">
+        <arg name="robot_namespace" value="$(arg robot_namespace)"/>
+    </include>    -->
+
+  </group>
+
+
+</launch>

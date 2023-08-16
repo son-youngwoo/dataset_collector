@@ -1,0 +1,94 @@
+<?xml version="1.0" ?>
+
+<sdf version='1.6'>
+  <world name='default'>
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <include>
+      <name>terrain_3_1</name>
+      <uri>model://terrain_3</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+    
+    <include>
+      <name>terrain_3_2</name>
+      <uri>model://terrain_3</uri>
+      <pose>21 0 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>terrain_3_3</name>
+      <uri>model://terrain_3</uri>
+      <pose>0 21 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>terrain_3_4</name>
+      <uri>model://terrain_3</uri>
+      <pose>21 21 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>terrain_3_5</name>
+      <uri>model://terrain_3</uri>
+      <pose>0 42 0 0 0 0</pose>
+    </include>
+    
+    <include>
+      <name>terrain_3_6</name>
+      <uri>model://terrain_3</uri>
+      <pose>21 42 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>terrain_3_7</name>
+      <uri>model://terrain_3</uri>
+      <pose>0 63 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>terrain_3_8</name>
+      <uri>model://terrain_3</uri>
+      <pose>21 63 0 0 0 0</pose>
+    </include>
+
+    <!-- <include>
+      <name>terrain_3_9</name>
+      <uri>model://terrain_3</uri>
+      <pose>42 0 0 0 0 0</pose>
+    </include>
+    
+    <include>
+      <name>terrain_3_10</name>
+      <uri>model://terrain_3</uri>
+      <pose>42 21 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>terrain_3_11</name>
+      <uri>model://terrain_3</uri>
+      <pose>42 42 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>terrain_3_12</name>
+      <uri>model://terrain_3</uri>
+      <pose>42 63 0 0 0 0</pose>
+    </include> -->
+
+      <physics type="ode" default="true">
+        <max_step_size>0.001</max_step_size>
+        <real_time_factor>1000</real_time_factor>
+        <max_contacts>1</max_contacts>
+        <ode>
+          <solver>
+            <type>quick</type>
+            <iters>10</iters>
+          </solver>
+        </ode>
+      </physics>
+
+  </world>
+</sdf>
